@@ -68,7 +68,7 @@ export const ChatInterface = ({ userType }: { userType: UserType }) => {
       
       const response = await generateRaedResponse(userMsg, history, userType || 'idea');
       setMessages(prev => [...prev, { role: 'model', text: response, id: (Date.now() + 1).toString() }]);
-    } catch (error) {
+    } catch (_error) {
       setMessages(prev => [...prev, { role: 'model', text: "عذراً، حدث خطأ في الاتصال. هل يمكننا المحاولة مرة أخرى؟", id: (Date.now() + 1).toString() }]);
     } finally {
       setIsThinking(false);
