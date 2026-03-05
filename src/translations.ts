@@ -1,0 +1,400 @@
+export const translations = {
+  ar: {
+    // Navbar
+    home: "الرئيسية",
+    features: "المميزات",
+    about: "عن رواد",
+    contact: "تواصل معنا",
+    startNow: "ابدأ الآن",
+    feedback: "شاركنا رأيك",
+    
+    // Hero
+    heroTitle: "شريكك المؤسس الذكي،",
+    heroSubtitle: "مدعوم بالذكاء الاصطناعي",
+    heroDesc: "منصة رواد تجمع بين أصحاب الأفكار، المهارات، والمستثمرين لبناء شركات ناشئة ناجحة في العالم العربي.",
+    startJourney: "ابدأ رحلتك مع RAED",
+    learnMore: "اعرف المزيد",
+    
+    // Problem Solution
+    problemTitle: "لماذا تفشل الشركات الناشئة؟",
+    problem1Title: "نقص الفريق المتكامل",
+    problem1Desc: "أفكار عظيمة تموت بسبب عدم وجود الشريك التقني أو التسويقي المناسب.",
+    problem2Title: "غياب التوجيه",
+    problem2Desc: "قرارات خاطئة في المراحل الأولى تؤدي إلى خسارة الوقت والمال.",
+    problem3Title: "صعوبة التمويل",
+    problem3Desc: "المستثمرون يبحثون عن فرق متكاملة ونماذج عمل واضحة، وهو ما يفتقده الكثيرون.",
+    solutionTitle: "الحل مع رواد",
+    solution1Title: "تكوين الفريق الذكي",
+    solution1Desc: "خوارزميات ذكية تربطك بالشريك المؤسس المثالي بناءً على المهارات والشغف.",
+    solution2Title: "RAED AI Co-founder",
+    solution2Desc: "شريك مؤسس افتراضي يوجهك خطوة بخطوة، من الفكرة إلى الإطلاق.",
+    solution3Title: "جاهزية الاستثمار",
+    solution3Desc: "نساعدك في بناء ملف استثماري قوي يجذب المستثمرين الجادين.",
+
+    // Raed Section
+    raedTitle: "مرحباً، أنا RAED",
+    raedSubtitle: "شريكك المؤسس الافتراضي",
+    raedDesc: "أنا هنا لمساعدتك في كل خطوة. سواء كنت بحاجة إلى صياغة فكرتك، البحث عن شريك، أو تجهيز عرضك الاستثماري.",
+    raedFeature1: "تحليل الأفكار",
+    raedFeature2: "توجيه استراتيجي",
+    raedFeature3: "دعم 24/7",
+    
+    // Register Page
+    registerTitle: "كيف تريد أن تبدأ؟",
+    registerSubtitle: "اختر المسار الذي يناسبك للانطلاق في عالم ريادة الأعمال",
+    ideaTitle: "لدي فكرة",
+    ideaDesc: "أبحث عن فريق لتنفيذها",
+    skillTitle: "لدي مهارة",
+    skillDesc: "أبحث عن فكرة للمشاركة فيها",
+    investorTitle: "أنا مستثمر",
+    investorDesc: "أبحث عن فرص واعدة",
+    
+    // Onboarding
+    onboardingTitle: "لنكمل ملفك الشخصي",
+    onboardingStep1: "المعلومات الأساسية",
+    onboardingStep2: "التفاصيل",
+    onboardingStep3: "الاهتمامات",
+    next: "التالي",
+    back: "السابق",
+    finish: "إنهاء",
+    nameLabel: "الاسم الكامل",
+    emailLabel: "البريد الإلكتروني",
+    industryLabel: "المجال المفضل",
+    skillsLabel: "المهارات (افصل بينها بفاصلة)",
+    budgetLabel: "الميزانية المتوقعة (ر.س)",
+    bioLabel: "نبذة عنك",
+    
+    // Onboarding Questions
+    q_idea_problem: "أهلاً بك يا رائد المستقبل. كل مشروع عظيم يبدأ بمشكلة حقيقية. أخبرني باختصار، ما هي المشكلة التي تحاول حلها؟",
+    q_idea_problem_ph: "مثلاً: صعوبة العثور على مواقف سيارات في الرياض...",
+    q_idea_fear: "أتفهم طموحك. ولكن بصراحة، ما هو أكبر مخاوفك حالياً بخصوص هذا المشروع؟",
+    q_idea_fear_ph: "مثلاً: الخوف من سرقة الفكرة، نقص التمويل، عدم وجود فريق...",
+    q_idea_needs: "لنتغلب على هذا الخوف، من هو الشريك الذي ينقصك لتشعر بالأمان والانطلاق؟",
+    
+    q_skill_superpower: "أهلاً بك يا مبدع. في عالم ruwadverse، نحن لا نبحث عن موظفين، بل عن شركاء. ما هي \"قوتك الخارقة\" المهنية؟",
+    q_skill_superpower_ph: "مثلاً: تطوير تطبيقات React، تصميم واجهات UX، تسويق رقمي...",
+    q_skill_passion: "رائع. وما هو نوع المشاريع الذي يشعل حماسك فعلاً؟",
+    q_skill_preference: "بصراحة، ما الذي تبحث عنه في الشراكة؟",
+    
+    q_investor_sector: "أهلاً بك. الاستثمار الذكي يحتاج لرؤية واضحة. ما هي القطاعات التي تركز عليها؟",
+    q_investor_stage: "وما هي المرحلة التي تفضل الدخول فيها؟",
+    q_investor_value: "أخيراً، ماذا تقدم للشركة الناشئة غير المال؟",
+    q_investor_value_ph: "مثلاً: علاقات، خبرة إدارية، توجيه...",
+
+    // Options
+    opt_tech_partner: "شريك تقني (CTO)",
+    opt_marketing_partner: "شريك تسويقي (CMO)",
+    opt_finance_partner: "شريك مالي (CFO)",
+    opt_investor_only: "مستثمر فقط",
+    
+    opt_fintech: "التقنية المالية (FinTech)",
+    opt_edtech: "التعليم (EdTech)",
+    opt_healthtech: "الصحة (HealthTech)",
+    opt_ecommerce: "التجارة الإلكترونية",
+    
+    opt_equity: "نسبة ملكية (Equity) فقط",
+    opt_salary_equity: "راتب + نسبة بسيطة",
+    opt_side_project: "مشروع جانبي للتعلم",
+    
+    opt_saas: "التقنية (SaaS)",
+    opt_proptech: "العقارات (PropTech)",
+    opt_ai: "الذكاء الاصطناعي",
+    opt_all_sectors: "جميع القطاعات",
+    
+    opt_pre_seed: "فكرة (Pre-Seed)",
+    opt_seed: "منتج أولي (Seed)",
+    opt_series_a: "نمو (Series A)",
+
+    // Market Insights
+    insight_1: "استقرار ملحوظ في قطاع التقنية المالية اليوم.",
+    insight_2: "زيادة الطلب على حلول الذكاء الاصطناعي في المنطقة.",
+    insight_3: "توقعات بنمو قطاع التجارة الإلكترونية بنسبة 5%.",
+    insight_4: "فرص واعدة للمشاريع الناشئة في مجال التعليم.",
+    insight_5: "تحسن مؤشرات الاستثمار الجريء في الربع الحالي.",
+    insight_6: "تركيز المستثمرين يتحول نحو الاستدامة والطاقة النظيفة.",
+    insight_7: "نمو متسارع في قطاع الخدمات اللوجستية.",
+    insight_8: "زيادة الاهتمام بمنصات العمل الحر والتوظيف عن بعد.",
+
+    // Dashboard
+    dashboardTitle: "لوحة التحكم",
+    welcomeBack: "مرحباً بعودتك،",
+    completeProfile: "80% مكتمل",
+    marketInsight: "تحليل السوق اليومي",
+    successProb: "نسبة نجاح الفكرة",
+    marketTip: "نصيحة اليوم",
+    quickActions: "إجراءات سريعة",
+    generatePitch: "إنشاء عرض استثماري",
+    analyzeCompetitors: "تحليل المنافسين",
+    findCoFounder: "البحث عن شريك",
+    exploreIdeas: "استكشاف الأفكار",
+    chatWithRaed: "تحدث مع RAED",
+    
+    // Placeholder Data
+    backendDev: "مطور Backend",
+    digitalMarketer: "مسوق رقمي",
+    edTechPlatform: "منصة تعليمية",
+    educationRiyadh: "تعليم • الرياض",
+    equity10: "10% ملكية",
+    lookingForCoFounder: "أبحث عن شريك تقني لبناء منصة تعليمية تفاعلية للأطفال باستخدام الذكاء الاصطناعي.",
+    posted2DaysAgo: "نشر قبل يومين",
+    finTechProject: "مشروع تقنية مالية",
+    healthTechProject: "مشروع تقنية صحية",
+    seedStageRiyadh: "مرحلة أولية • الرياض",
+    valuation: "التقييم",
+    team: "الفريق",
+    raedScore: "تقييم RAED",
+    sar3m: "3 مليون ريال",
+    complete: "مكتمل",
+    
+    // Chat Interface
+    chatPlaceholder: "اكتب رسالتك لـ RAED...",
+    raedThinking: "RAED يفكر...",
+    raedWelcome: "أهلاً بك. أنا RAED. أفهم أنك {userType}. دعنا نبدأ، كيف يمكنني مساعدتك اليوم؟",
+    userTypeIdea: "لديك فكرة طموحة",
+    userTypeSkill: "تمتلك مهارات قيمة",
+    userTypeInvestor: "تبحث عن استثمار ذكي",
+    feedbackWhy: "لماذا لم تعجبك الإجابة؟",
+    feedbackPlaceholder: "أخبرنا المزيد...",
+    sendFeedback: "إرسال الملاحظات",
+    online: "متصل",
+    partner: "شريكك المؤسس",
+    
+    // Privacy & Footer
+    privacyPolicy: "سياسة الخصوصية",
+    gdprCompliance: "امتثال كامل لمعايير الخصوصية العالمية (GDPR/CCPA)",
+    cookieConsent: "نستخدم ملفات تعريف الارتباط لتحسين تجربتك.",
+    accept: "موافق",
+    decline: "رفض",
+    
+    // KYC & Registration
+    verifyIdentity: "تحقق من الهوية",
+    uploadPhoto: "رفع صورة شخصية",
+    faceDetection: "جاري الكشف عن الوجه...",
+    kycSuccess: "تم التحقق بنجاح",
+    
+    // Pricing
+    pricingTitle: "خطط الأسعار",
+    freePlan: "مجاني",
+    proPlan: "محترف",
+    sar: "ر.س",
+    month: "شهر",
+    subscribe: "اشترك الآن",
+    paymentMethods: "طرق الدفع الآمنة",
+    
+    // Dashboard Tabs
+    myIdeas: "أفكاري",
+    mySkills: "مهاراتي",
+    myInvestments: "استثماراتي",
+    aiMatches: "توصيات الذكاء الاصطناعي",
+    performance: "الأداء",
+    partnershipCalc: "حاسبة الشراكة",
+    
+    // Hero Stats
+    usersCount: "+60 ألف مستخدم",
+    projectsCount: "+500 مشروع",
+    
+    // General
+    endorse: "تأييد",
+    share: "مشاركة",
+    inviteFriend: "دعوة صديق",
+  },
+  en: {
+    // Navbar
+    home: "Home",
+    features: "Features",
+    about: "About Ruwad",
+    contact: "Contact Us",
+    startNow: "Start Now",
+    feedback: "Feedback",
+    
+    // Hero
+    heroTitle: "Your Smart Co-founder,",
+    heroSubtitle: "Powered by AI",
+    heroDesc: "Ruwad platform connects idea owners, skilled professionals, and investors to build successful startups in the Arab world.",
+    startJourney: "Start Journey with RAED",
+    learnMore: "Learn More",
+    
+    // Problem Solution
+    problemTitle: "Why Do Startups Fail?",
+    problem1Title: "Lack of Complete Team",
+    problem1Desc: "Great ideas die due to the lack of the right technical or marketing partner.",
+    problem2Title: "Lack of Guidance",
+    problem2Desc: "Wrong decisions in early stages lead to loss of time and money.",
+    problem3Title: "Funding Difficulties",
+    problem3Desc: "Investors look for complete teams and clear business models, which many lack.",
+    solutionTitle: "The Solution with Ruwad",
+    solution1Title: "Smart Team Building",
+    solution1Desc: "Smart algorithms connect you with the perfect co-founder based on skills and passion.",
+    solution2Title: "RAED AI Co-founder",
+    solution2Desc: "A virtual co-founder guiding you step-by-step, from idea to launch.",
+    solution3Title: "Investment Readiness",
+    solution3Desc: "We help you build a strong investment profile that attracts serious investors.",
+
+    // Raed Section
+    raedTitle: "Hello, I am RAED",
+    raedSubtitle: "Your Virtual Co-founder",
+    raedDesc: "I am here to help you at every step. Whether you need to refine your idea, find a partner, or prepare your investment pitch.",
+    raedFeature1: "Idea Analysis",
+    raedFeature2: "Strategic Guidance",
+    raedFeature3: "24/7 Support",
+    
+    // Register Page
+    registerTitle: "How do you want to start?",
+    registerSubtitle: "Choose the path that suits you to launch into entrepreneurship",
+    ideaTitle: "I have an Idea",
+    ideaDesc: "Looking for a team to execute it",
+    skillTitle: "I have a Skill",
+    skillDesc: "Looking for an idea to join",
+    investorTitle: "I am an Investor",
+    investorDesc: "Looking for promising opportunities",
+    
+    // Onboarding
+    onboardingTitle: "Complete Your Profile",
+    onboardingStep1: "Basic Info",
+    onboardingStep2: "Details",
+    onboardingStep3: "Interests",
+    next: "Next",
+    back: "Back",
+    finish: "Finish",
+    nameLabel: "Full Name",
+    emailLabel: "Email",
+    industryLabel: "Preferred Industry",
+    skillsLabel: "Skills (comma separated)",
+    budgetLabel: "Expected Budget (SAR)",
+    bioLabel: "Bio",
+    
+    // Onboarding Questions
+    q_idea_problem: "Welcome, future pioneer. Every great project starts with a real problem. Briefly, what problem are you trying to solve?",
+    q_idea_problem_ph: "E.g., Difficulty finding parking spots in Riyadh...",
+    q_idea_fear: "I understand your ambition. But honestly, what is your biggest fear regarding this project right now?",
+    q_idea_fear_ph: "E.g., Fear of idea theft, lack of funding, no team...",
+    q_idea_needs: "To overcome this fear, what partner are you missing to feel secure and launch?",
+    
+    q_skill_superpower: "Welcome, creator. In the ruwadverse, we don't look for employees, but partners. What is your professional \"superpower\"?",
+    q_skill_superpower_ph: "E.g., React app development, UX design, Digital marketing...",
+    q_skill_passion: "Great. What type of projects truly ignite your passion?",
+    q_skill_preference: "Honestly, what are you looking for in a partnership?",
+    
+    q_investor_sector: "Welcome. Smart investment needs a clear vision. Which sectors do you focus on?",
+    q_investor_stage: "And which stage do you prefer to enter?",
+    q_investor_value: "Finally, what do you offer the startup besides money?",
+    q_investor_value_ph: "E.g., Connections, management experience, mentorship...",
+
+    // Options
+    opt_tech_partner: "Tech Partner (CTO)",
+    opt_marketing_partner: "Marketing Partner (CMO)",
+    opt_finance_partner: "Finance Partner (CFO)",
+    opt_investor_only: "Investor Only",
+    
+    opt_fintech: "FinTech",
+    opt_edtech: "EdTech",
+    opt_healthtech: "HealthTech",
+    opt_ecommerce: "E-commerce",
+    
+    opt_equity: "Equity Only",
+    opt_salary_equity: "Salary + Small Equity",
+    opt_side_project: "Side Project for Learning",
+    
+    opt_saas: "SaaS",
+    opt_proptech: "PropTech",
+    opt_ai: "Artificial Intelligence",
+    opt_all_sectors: "All Sectors",
+    
+    opt_pre_seed: "Pre-Seed (Idea)",
+    opt_seed: "Seed (MVP)",
+    opt_series_a: "Series A (Growth)",
+
+    // Market Insights
+    insight_1: "Notable stability in the FinTech sector today.",
+    insight_2: "Increased demand for AI solutions in the region.",
+    insight_3: "Projected 5% growth in the E-commerce sector.",
+    insight_4: "Promising opportunities for startups in Education.",
+    insight_5: "Improved Venture Capital indicators this quarter.",
+    insight_6: "Investor focus shifting towards sustainability and clean energy.",
+    insight_7: "Accelerated growth in the logistics sector.",
+    insight_8: "Increased interest in freelance and remote work platforms.",
+
+    // Dashboard
+    dashboardTitle: "Dashboard",
+    welcomeBack: "Welcome back,",
+    completeProfile: "80% Complete",
+    marketInsight: "Daily Market Insight",
+    successProb: "Idea Success Probability",
+    marketTip: "Tip of the Day",
+    quickActions: "Quick Actions",
+    generatePitch: "Generate Pitch Deck",
+    analyzeCompetitors: "Analyze Competitors",
+    findCoFounder: "Find Co-Founder",
+    exploreIdeas: "Explore Ideas",
+    chatWithRaed: "Chat with RAED",
+
+    // Placeholder Data
+    backendDev: "Backend Dev",
+    digitalMarketer: "Digital Marketer",
+    edTechPlatform: "EdTech Platform",
+    educationRiyadh: "Education • Riyadh",
+    equity10: "10% Equity",
+    lookingForCoFounder: "Looking for a technical co-founder to build an interactive educational platform for kids using AI.",
+    posted2DaysAgo: "Posted 2 days ago",
+    finTechProject: "FinTech Project",
+    healthTechProject: "HealthTech Project",
+    seedStageRiyadh: "Seed Stage • Riyadh",
+    valuation: "Valuation",
+    team: "Team",
+    raedScore: "RAED Score",
+    sar3m: "3M SAR",
+    complete: "Complete",
+    
+    // Chat Interface
+    chatPlaceholder: "Type your message to RAED...",
+    raedThinking: "RAED is thinking...",
+    raedWelcome: "Welcome. I am RAED. I understand that you {userType}. Let's start, how can I help you today?",
+    userTypeIdea: "have an ambitious idea",
+    userTypeSkill: "possess valuable skills",
+    userTypeInvestor: "are looking for smart investment",
+    feedbackWhy: "Why didn't you like the answer?",
+    feedbackPlaceholder: "Tell us more...",
+    sendFeedback: "Send Feedback",
+    online: "ONLINE",
+    partner: "Your Co-founder",
+    
+    // Privacy & Footer
+    privacyPolicy: "Privacy Policy",
+    gdprCompliance: "Fully compliant with global privacy standards (GDPR/CCPA)",
+    cookieConsent: "We use cookies to improve your experience.",
+    accept: "Accept",
+    decline: "Decline",
+    
+    // KYC & Registration
+    verifyIdentity: "Verify Identity",
+    uploadPhoto: "Upload Photo",
+    faceDetection: "Detecting face...",
+    kycSuccess: "Verified Successfully",
+    
+    // Pricing
+    pricingTitle: "Pricing Plans",
+    freePlan: "Free",
+    proPlan: "Pro",
+    sar: "SAR",
+    month: "month",
+    subscribe: "Subscribe Now",
+    paymentMethods: "Secure Payment Methods",
+    
+    // Dashboard Tabs
+    myIdeas: "My Ideas",
+    mySkills: "My Skills",
+    myInvestments: "My Investments",
+    aiMatches: "AI Recommendations",
+    performance: "Performance",
+    partnershipCalc: "Partnership Calculator",
+    
+    // Hero Stats
+    usersCount: "+60k Users",
+    projectsCount: "+500 Projects",
+    
+    // General
+    endorse: "Endorse",
+    share: "Share",
+    inviteFriend: "Invite Friend",
+  }
+};
