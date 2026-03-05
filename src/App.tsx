@@ -12,6 +12,7 @@ import { CookieConsent } from './components/CookieConsent';
 import { PaymentModal } from './components/PaymentModal';
 import { ExploreSection } from './components/ExploreSection';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // --- Types ---
 type UserType = 'idea' | 'skill' | 'investor' | null;
@@ -1084,6 +1085,7 @@ export default function App() {
           <Footer />
           <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
           <CookieConsent />
+          <SpeedInsights />
         </div>
       )}
     </>
