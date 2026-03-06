@@ -12,10 +12,15 @@ import { CookieConsent } from './components/CookieConsent';
 import { PaymentModal } from './components/PaymentModal';
 import { ExploreSection } from './components/ExploreSection';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { SocialLogin } from './components/SocialLogin';
+import { SkillProfile } from './components/profiles/SkillProfile';
+import { FounderProfile } from './components/profiles/FounderProfile';
+import { InvestorProfile } from './components/profiles/InvestorProfile';
+import { Marketplace } from './components/Marketplace';
 
 // --- Types ---
 type UserType = 'idea' | 'skill' | 'investor' | null;
-type Page = 'home' | 'register' | 'onboarding' | 'dashboard';
+type Page = 'home' | 'register' | 'onboarding' | 'dashboard' | 'profile-skill' | 'profile-founder' | 'profile-investor' | 'marketplace';
 
 // --- Components ---
 
@@ -70,6 +75,17 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-6 space-x-reverse rtl:space-x-reverse ltr:space-x-reverse">
               <button onClick={() => onNavigate('home')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('home')}</button>
+              <button onClick={() => onNavigate('marketplace')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">سوق الأفكار</button>
+              <div className="relative group inline-block mx-3">
+                <button className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                  الملفات <ChevronDown size={14} />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-[#141517] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                  <button onClick={() => onNavigate('profile-skill')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المهارة</button>
+                  <button onClick={() => onNavigate('profile-founder')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المؤسس</button>
+                  <button onClick={() => onNavigate('profile-investor')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المستثمر</button>
+                </div>
+              </div>
               <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('features')}</a>
               <a href="#raed" className="text-sm text-gray-400 hover:text-white transition-colors mx-3">RAED</a>
               <button onClick={onFeedback} className="text-gray-400 hover:text-white transition-colors mx-3" title={t('feedback')} aria-label={t('feedback')}>
@@ -98,6 +114,10 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
       {isOpen && (
         <div className="md:hidden bg-[#0B0C0E] border-b border-white/5 px-4 pb-4 pt-2 space-y-2">
           <button onClick={() => { onNavigate('home'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('home')}</button>
+          <button onClick={() => { onNavigate('marketplace'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">سوق الأفكار</button>
+          <button onClick={() => { onNavigate('profile-skill'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المهارة</button>
+          <button onClick={() => { onNavigate('profile-founder'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المؤسس</button>
+          <button onClick={() => { onNavigate('profile-investor'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المستثمر</button>
           <button onClick={() => { onFeedback(); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('feedback')}</button>
           <button onClick={() => { onNavigate('register'); setIsOpen(false); }} className="block w-full text-start py-2 text-[#FFD700]">{t('startJourney')}</button>
         </div>
@@ -605,6 +625,8 @@ const RegisterPage = ({ onSelectType }: { onSelectType: (type: UserType) => void
           <h2 className="text-4xl font-bold mb-4">{t('registerTitle')}</h2>
           <p className="text-[#8A8F98]">{t('registerSubtitle')}</p>
         </div>
+
+        <SocialLogin />
         
         {!showKYC ? (
           <div className="grid md:grid-cols-3 gap-6">
@@ -1054,6 +1076,50 @@ export default function App() {
                   exit={{ opacity: 0, x: -20 }}
                 >
                   <RegisterPage onSelectType={handleUserTypeSelect} />
+                </motion.div>
+              )}
+
+              {page === 'marketplace' && (
+                <motion.div
+                  key="marketplace"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Marketplace />
+                </motion.div>
+              )}
+
+              {page === 'profile-skill' && (
+                <motion.div
+                  key="profile-skill"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <SkillProfile />
+                </motion.div>
+              )}
+
+              {page === 'profile-founder' && (
+                <motion.div
+                  key="profile-founder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <FounderProfile />
+                </motion.div>
+              )}
+
+              {page === 'profile-investor' && (
+                <motion.div
+                  key="profile-investor"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <InvestorProfile />
                 </motion.div>
               )}
 
