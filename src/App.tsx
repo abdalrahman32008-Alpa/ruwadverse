@@ -1253,7 +1253,7 @@ function AppContent() {
           <main className="flex-grow">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
-                <Routes location={location} key={location.pathname}>
+                <Routes location={location}>
                   <Route path="/" element={
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                       <Hero />
