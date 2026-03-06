@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, Filter, MapPin, DollarSign, TrendingUp, Users, ArrowUpRight, SlidersHorizontal, X } from 'lucide-react';
+import { CardSkeleton } from './Skeleton';
 
 // --- مكون سوق الأفكار ---
 // يتيح للمستخدمين تصفح الأفكار والمشاريع الناشئة مع إمكانية الفلترة والبحث
 export const Marketplace = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeSector, setActiveSector] = useState('All');
+  const [loading, setLoading] = useState(true);
+  const [ideas, setIdeas] = useState<any[]>([]);
 
   // بيانات الأفكار (وهمية)
-  const ideas = [
+  const mockIdeas = [
     {
       id: 2847,
       sector: 'Education',
@@ -67,6 +70,15 @@ export const Marketplace = () => {
     }
   ];
 
+  useEffect(() => {
+    // Simulate fetching
+    const timer = setTimeout(() => {
+      setIdeas(mockIdeas);
+      setLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const sectors = ['All', 'Education', 'FinTech', 'HealthTech', 'E-commerce', 'PropTech'];
 
   const filteredIdeas = activeSector === 'All' ? ideas : ideas.filter(idea => idea.sector === activeSector);
@@ -83,7 +95,7 @@ export const Marketplace = () => {
           <div className="flex items-center gap-4">
             <div className="bg-[#141517] px-4 py-2 rounded-xl border border-white/5 flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              <span className="text-[#FFD700] font-bold font-mono">{ideas.length}</span>
+              <span className="text-[#FFD700] font-bold font-mono">{loading ? '...' : ideas.length}</span>
               <span className="text-sm text-gray-400">فكرة نشطة الآن</span>
             </div>
           </div>
@@ -184,68 +196,75 @@ export const Marketplace = () => {
       {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence>
-            {filteredIdeas.map((idea) => (
-              <motion.div
-                key={idea.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="bg-[#141517] border border-white/5 rounded-2xl p-6 hover:border-[#FFD700]/30 transition-all group relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FFD700]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-gray-400 group-hover:text-[#FFD700] group-hover:bg-[#FFD700]/10 transition-colors">
-                      <TrendingUp size={18} />
+          {loading ? (
+            // Loading Skeletons
+            Array.from({ length: 6 }).map((_, idx) => (
+              <CardSkeleton key={idx} />
+            ))
+          ) : (
+            <AnimatePresence>
+              {filteredIdeas.map((idea) => (
+                <motion.div
+                  key={idea.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="bg-[#141517] border border-white/5 rounded-2xl p-6 hover:border-[#FFD700]/30 transition-all group relative overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FFD700]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-gray-400 group-hover:text-[#FFD700] group-hover:bg-[#FFD700]/10 transition-colors">
+                        <TrendingUp size={18} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm">{idea.title}</h3>
+                        <span className="text-xs text-gray-500">{idea.country}</span>
+                      </div>
+                    </div>
+                    <div className={`px-2 py-1 rounded-md text-xs font-bold ${
+                      idea.successRate >= 80 ? 'bg-green-500/10 text-green-400' : 
+                      idea.successRate >= 60 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-orange-500/10 text-orange-400'
+                    }`}>
+                      {idea.successRate}% نجاح
+                    </div>
+                  </div>
+
+                  <p className="text-gray-400 text-sm mb-6 line-clamp-2 leading-relaxed">
+                    {idea.desc}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {idea.tags.map((tag: string, idx: number) => (
+                      <span key={idx} className="px-2 py-1 bg-white/5 border border-white/5 rounded-md text-xs text-gray-300">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-white/5">
+                    <div>
+                      <span className="text-xs text-gray-500 block mb-1">التمويل المطلوب</span>
+                      <span className="text-[#FFD700] font-mono font-bold">{idea.funding}</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-sm">{idea.title}</h3>
-                      <span className="text-xs text-gray-500">{idea.country}</span>
+                      <span className="text-xs text-gray-500 block mb-1">المتقدمين</span>
+                      <span className="text-white font-mono font-bold flex items-center gap-1">
+                        <Users size={12} /> {idea.applicants}
+                      </span>
                     </div>
                   </div>
-                  <div className={`px-2 py-1 rounded-md text-xs font-bold ${
-                    idea.successRate >= 80 ? 'bg-green-500/10 text-green-400' : 
-                    idea.successRate >= 60 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-orange-500/10 text-orange-400'
-                  }`}>
-                    {idea.successRate}% نجاح
-                  </div>
-                </div>
 
-                <p className="text-gray-400 text-sm mb-6 line-clamp-2 leading-relaxed">
-                  {idea.desc}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {idea.tags.map((tag, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-white/5 border border-white/5 rounded-md text-xs text-gray-300">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-white/5">
-                  <div>
-                    <span className="text-xs text-gray-500 block mb-1">التمويل المطلوب</span>
-                    <span className="text-[#FFD700] font-mono font-bold">{idea.funding}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-gray-500 block mb-1">المتقدمين</span>
-                    <span className="text-white font-mono font-bold flex items-center gap-1">
-                      <Users size={12} /> {idea.applicants}
-                    </span>
-                  </div>
-                </div>
-
-                <button className="w-full py-2.5 bg-[#FFD700] text-black rounded-xl font-bold hover:bg-[#FFC000] transition-colors flex items-center justify-center gap-2">
-                  <span>أنا مهتم</span>
-                  <ArrowUpRight size={16} />
-                </button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                  <button className="w-full py-2.5 bg-[#FFD700] text-black rounded-xl font-bold hover:bg-[#FFC000] transition-colors flex items-center justify-center gap-2">
+                    <span>أنا مهتم</span>
+                    <ArrowUpRight size={16} />
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
         </div>
       </div>
     </div>

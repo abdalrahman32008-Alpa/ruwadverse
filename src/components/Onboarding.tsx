@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Check, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Sparkles, User, Briefcase, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 type UserType = 'idea' | 'skill' | 'investor' | null;
@@ -11,7 +11,7 @@ interface OnboardingProps {
 }
 
 export const Onboarding = ({ userType, onComplete }: OnboardingProps) => {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(-1); // -1: Welcome, 0-2: Questions, 3: Completion
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [inputValue, setInputValue] = useState('');
   const { t } = useLanguage();
@@ -80,31 +80,119 @@ export const Onboarding = ({ userType, onComplete }: OnboardingProps) => {
   };
 
   const currentQuestions = userType ? questions[userType] : [];
-  const currentQ = currentQuestions[step];
+  const currentQ = step >= 0 && step < currentQuestions.length ? currentQuestions[step] : null;
 
   const handleNext = () => {
-    if (currentQ.type === 'text' && !inputValue.trim()) return;
+    if (step === -1) {
+      setStep(0);
+      return;
+    }
+
+    if (currentQ?.type === 'text' && !inputValue.trim()) return;
     
-    const answer = currentQ.type === 'text' ? inputValue : inputValue; // Logic same for now
-    setAnswers(prev => ({ ...prev, [currentQ.id]: answer }));
+    const answer = currentQ?.type === 'text' ? inputValue : inputValue;
+    if (currentQ) {
+      setAnswers(prev => ({ ...prev, [currentQ.id]: answer }));
+    }
     setInputValue('');
 
     if (step < currentQuestions.length - 1) {
       setStep(prev => prev + 1);
     } else {
-      onComplete({ ...answers, [currentQ.id]: answer });
+      setStep(prev => prev + 1); // Go to completion screen
     }
   };
 
   const handleOptionSelect = (option: string) => {
-    setAnswers(prev => ({ ...prev, [currentQ.id]: option }));
+    if (currentQ) {
+      setAnswers(prev => ({ ...prev, [currentQ.id]: option }));
+    }
     if (step < currentQuestions.length - 1) {
       setStep(prev => prev + 1);
     } else {
-      onComplete({ ...answers, [currentQ.id]: option });
+      setStep(prev => prev + 1); // Go to completion screen
     }
   };
 
+  const handleFinalComplete = () => {
+    onComplete(answers);
+  };
+
+  // Welcome Screen
+  if (step === -1) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 pt-20 pb-10 bg-[#0B0C0E]">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full text-center"
+        >
+          <div className="w-20 h-20 bg-[#FFD700] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
+            <Sparkles size={32} className="text-black" />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-4">مرحباً بك في رواد فيرس</h1>
+          <p className="text-gray-400 mb-8 text-lg">
+            دعنا نساعدك في بناء ملفك الشخصي المثالي في خطوات بسيطة.
+          </p>
+          <button 
+            onClick={handleNext}
+            className="w-full py-4 bg-[#FFD700] text-black font-bold rounded-xl hover:bg-[#FFC000] transition-all text-lg shadow-lg hover:shadow-[#FFD700]/20"
+          >
+            ابدأ الآن
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Completion Screen
+  if (step >= currentQuestions.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 pt-20 pb-10 bg-[#0B0C0E]">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-[#141517] border border-white/5 rounded-3xl p-8 text-center"
+        >
+          <div className="w-24 h-24 mx-auto mb-6 relative">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="40" stroke="#333" strokeWidth="8" fill="none" />
+              <motion.circle 
+                cx="48" cy="48" r="40" stroke="#FFD700" strokeWidth="8" fill="none"
+                strokeDasharray="251.2"
+                strokeDashoffset="251.2"
+                animate={{ strokeDashoffset: 251.2 * 0.25 }} // 75% complete
+                transition={{ duration: 1.5, ease: "easeOut" }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white">
+              75%
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-bold text-white mb-2">ملفك جاهز تقريباً!</h2>
+          <p className="text-gray-400 mb-8">
+            أكملت الخطوات الأساسية. يمكنك الآن استكشاف المنصة، لكن ننصحك بإكمال الـ 25% المتبقية للحصول على ظهور أكبر.
+          </p>
+
+          <button 
+            onClick={handleFinalComplete}
+            className="w-full py-3 bg-[#FFD700] text-black font-bold rounded-xl hover:bg-[#FFC000] transition-all mb-3"
+          >
+            استكشف المنصة
+          </button>
+          <button 
+            onClick={handleFinalComplete}
+            className="w-full py-3 bg-white/5 text-white font-bold rounded-xl hover:bg-white/10 transition-all border border-white/5"
+          >
+            أكمل الملف الآن
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Question Screens
   return (
     <div className="min-h-screen flex items-center justify-center px-4 pt-20 pb-10 bg-[#0B0C0E]">
       <div className="max-w-2xl w-full">
@@ -136,12 +224,12 @@ export const Onboarding = ({ userType, onComplete }: OnboardingProps) => {
 
           {/* Question */}
           <h2 className="text-xl md:text-2xl font-bold text-center mb-8 leading-relaxed text-white">
-            {currentQ.text}
+            {currentQ?.text}
           </h2>
 
           {/* Input Area */}
           <div className="space-y-6">
-            {currentQ.type === 'text' ? (
+            {currentQ?.type === 'text' ? (
               <div className="relative group">
                 <input
                   type="text"
@@ -163,7 +251,7 @@ export const Onboarding = ({ userType, onComplete }: OnboardingProps) => {
               </div>
             ) : (
               <div className="grid gap-3">
-                {currentQ.options?.map((option, idx) => (
+                {currentQ?.options?.map((option, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleOptionSelect(option)}

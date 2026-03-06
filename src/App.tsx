@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Logo } from './components/Logo';
 import { generateRaedResponse } from './services/raed';
@@ -18,15 +18,20 @@ import { FounderProfile } from './components/profiles/FounderProfile';
 import { InvestorProfile } from './components/profiles/InvestorProfile';
 import { Marketplace } from './components/Marketplace';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { AboutPage } from './pages/AboutPage';
-import { ContactPage } from './pages/ContactPage';
-import { PrivacyPage } from './pages/PrivacyPage';
-import { TermsPage } from './pages/TermsPage';
-import { MessagesPage } from './pages/MessagesPage';
-import { ReferralPage } from './pages/ReferralPage';
-import { ContractPage } from './pages/ContractPage';
-import { FounderDashboard } from './pages/FounderDashboard';
 import { Notifications } from './components/Notifications';
+import { Analytics } from './components/Analytics';
+import { Skeleton } from './components/Skeleton';
+import { supabase } from './lib/supabase';
+
+// Lazy Load Pages
+const AboutPage = React.lazy(() => import('./pages/AboutPage').then(module => ({ default: module.AboutPage })));
+const ContactPage = React.lazy(() => import('./pages/ContactPage').then(module => ({ default: module.ContactPage })));
+const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage').then(module => ({ default: module.PrivacyPage })));
+const TermsPage = React.lazy(() => import('./pages/TermsPage').then(module => ({ default: module.TermsPage })));
+const MessagesPage = React.lazy(() => import('./pages/MessagesPage').then(module => ({ default: module.MessagesPage })));
+const ReferralPage = React.lazy(() => import('./pages/ReferralPage').then(module => ({ default: module.ReferralPage })));
+const ContractPage = React.lazy(() => import('./pages/ContractPage').then(module => ({ default: module.ContractPage })));
+const FounderDashboard = React.lazy(() => import('./pages/FounderDashboard').then(module => ({ default: module.FounderDashboard })));
 
 // --- Types ---
 type UserType = 'idea' | 'skill' | 'investor' | null;
@@ -1044,6 +1049,20 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
   );
 };
 
+const PageLoader = () => (
+  <div className="min-h-screen pt-32 px-4 max-w-7xl mx-auto">
+     <div className="space-y-6 animate-pulse">
+        <div className="h-8 bg-white/10 rounded w-1/3"></div>
+        <div className="h-64 bg-white/5 rounded-2xl border border-white/5"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>
+           <div className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>
+           <div className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>
+        </div>
+     </div>
+  </div>
+);
+
 export default function App() {
   return (
     <AuthProvider>
@@ -1082,11 +1101,30 @@ function AppContent() {
     window.scrollTo(0, 0);
   };
 
-  const handleOnboardingComplete = (data: any) => {
+  const handleOnboardingComplete = async (data: any) => {
     console.log('Onboarding data:', data);
     if (userType) {
       localStorage.setItem('ruwad_user_type', userType);
       localStorage.setItem('ruwad_onboarding_data', JSON.stringify(data));
+
+      if (user) {
+        try {
+          const { error } = await supabase
+            .from('profiles')
+            .upsert({
+              id: user.id,
+              user_type: userType,
+              onboarding_data: data,
+              updated_at: new Date().toISOString(),
+            });
+            
+          if (error) {
+            console.error('Error saving profile:', error);
+          }
+        } catch (err) {
+          console.error('Error saving profile:', err);
+        }
+      }
     }
     setPage('dashboard');
     window.scrollTo(0, 0);
@@ -1094,6 +1132,7 @@ function AppContent() {
 
   return (
     <>
+      <Analytics />
       <AnimatePresence>
         {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
       </AnimatePresence>
@@ -1103,8 +1142,9 @@ function AppContent() {
           <Navbar onNavigate={setPage} onFeedback={() => setIsFeedbackOpen(true)} />
           
           <main className="flex-grow">
-            <AnimatePresence mode="wait">
-              {page === 'home' && (
+            <Suspense fallback={<PageLoader />}>
+              <AnimatePresence mode="wait">
+                {page === 'home' && (
                 <motion.div
                   key="home"
                   initial={{ opacity: 0 }}
@@ -1242,7 +1282,8 @@ function AppContent() {
                   <FounderDashboard />
                 </motion.div>
               )}
-            </AnimatePresence>
+              </AnimatePresence>
+            </Suspense>
           </main>
 
           <Footer onNavigate={setPage} />
