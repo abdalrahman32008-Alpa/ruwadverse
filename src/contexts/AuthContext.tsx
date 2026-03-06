@@ -6,9 +6,9 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
-  signInWithApple: () => Promise<void>;
-  signInWithLinkedIn: () => Promise<void>;
+  signInWithGoogle: (redirectTo?: string) => Promise<void>;
+  signInWithApple: (redirectTo?: string) => Promise<void>;
+  signInWithLinkedIn: (redirectTo?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -35,31 +35,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (redirectTo?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: redirectTo || `${window.location.origin}/dashboard`
       }
     });
     if (error) console.error('Error signing in with Google:', error.message);
   };
 
-  const signInWithApple = async () => {
+  const signInWithApple = async (redirectTo?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: redirectTo || `${window.location.origin}/dashboard`
       }
     });
     if (error) console.error('Error signing in with Apple:', error.message);
   };
 
-  const signInWithLinkedIn = async () => {
+  const signInWithLinkedIn = async (redirectTo?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'linkedin',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: redirectTo || `${window.location.origin}/dashboard`
       }
     });
     if (error) console.error('Error signing in with LinkedIn:', error.message);

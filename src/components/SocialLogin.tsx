@@ -2,18 +2,23 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Linkedin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 // --- مكون تسجيل الدخول الاجتماعي ---
 // يعرض أزرار تسجيل الدخول عبر Google, Apple, LinkedIn
 export const SocialLogin = () => {
   const { signInWithGoogle, signInWithApple, signInWithLinkedIn } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const location = useLocation();
 
   const handleSocialClick = async (platform: 'Google' | 'Apple' | 'LinkedIn') => {
     try {
-      if (platform === 'Google') await signInWithGoogle();
-      else if (platform === 'Apple') await signInWithApple();
-      else if (platform === 'LinkedIn') await signInWithLinkedIn();
+      const from = location.state?.from?.pathname || '/dashboard';
+      const redirectTo = `${window.location.origin}${from}`;
+      
+      if (platform === 'Google') await signInWithGoogle(redirectTo);
+      else if (platform === 'Apple') await signInWithApple(redirectTo);
+      else if (platform === 'LinkedIn') await signInWithLinkedIn(redirectTo);
     } catch (err) {
       setError(`حدث خطأ أثناء تسجيل الدخول عبر ${platform}`);
       setTimeout(() => setError(null), 3000);

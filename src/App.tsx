@@ -22,6 +22,8 @@ import { Notifications } from './components/Notifications';
 import { Analytics } from './components/Analytics';
 import { Skeleton } from './components/Skeleton';
 import { supabase } from './lib/supabase';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 import { RAEDChat } from './chat/RAEDChat';
 
@@ -79,32 +81,38 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, onFeedback: () => void }) => {
+const Navbar = ({ onFeedback }: { onFeedback: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t, language, setLanguage, dir } = useLanguage();
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const toggleLanguage = () => {
     setLanguage(language === 'ar' ? 'en' : 'ar');
+  };
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    setIsOpen(false);
   };
 
   return (
     <nav className="fixed top-0 w-full z-40 bg-[#0B0C0E]/80 backdrop-blur-xl border-b border-[rgba(255,255,255,0.08)]" dir={dir}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="cursor-pointer flex items-center gap-2" onClick={() => onNavigate('home')}>
+          <div className="cursor-pointer flex items-center gap-2" onClick={() => handleNavigate('/')}>
             <Logo width="120" height="40" />
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-6 space-x-reverse rtl:space-x-reverse ltr:space-x-reverse">
-              <button onClick={() => onNavigate('home')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('home')}</button>
-              <button onClick={() => onNavigate('marketplace')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">سوق الأفكار</button>
-              <button onClick={() => onNavigate('support')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('supportTitle')}</button>
+              <button onClick={() => handleNavigate('/')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('home')}</button>
+              <button onClick={() => handleNavigate('/marketplace')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">سوق الأفكار</button>
+              <button onClick={() => handleNavigate('/support')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('supportTitle')}</button>
               
               {user && (
                 <>
-                  <button onClick={() => onNavigate('messages')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">الرسائل</button>
-                  <button onClick={() => onNavigate('founder-dashboard')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">لوحة التحكم</button>
+                  <button onClick={() => handleNavigate('/messages')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">الرسائل</button>
+                  <button onClick={() => handleNavigate('/dashboard')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">لوحة التحكم</button>
                 </>
               )}
 
@@ -113,14 +121,14 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
                   الملفات <ChevronDown size={14} />
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-[#141517] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                  <button onClick={() => onNavigate('profile-skill')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المهارة</button>
-                  <button onClick={() => onNavigate('profile-founder')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المؤسس</button>
-                  <button onClick={() => onNavigate('profile-investor')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المستثمر</button>
+                  <button onClick={() => handleNavigate('/profile-skill')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المهارة</button>
+                  <button onClick={() => handleNavigate('/profile-founder')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المؤسس</button>
+                  <button onClick={() => handleNavigate('/profile-investor')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المستثمر</button>
                   {user && (
                     <>
                       <div className="h-px bg-white/10 my-1"></div>
-                      <button onClick={() => onNavigate('referral')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">برنامج الإحالة</button>
-                      <button onClick={() => onNavigate('contract')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">العقود</button>
+                      <button onClick={() => handleNavigate('/referral')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">برنامج الإحالة</button>
+                      <button onClick={() => handleNavigate('/contract')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">العقود</button>
                     </>
                   )}
                 </div>
@@ -145,7 +153,7 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
                   تسجيل خروج
                 </button>
               ) : (
-                <button onClick={() => onNavigate('register')} className="text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-full transition-all border border-white/5 mx-2">
+                <button onClick={() => handleNavigate('/login')} className="text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-full transition-all border border-white/5 mx-2">
                   {t('startNow')}
                 </button>
               )}
@@ -163,23 +171,23 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
       </div>
       {isOpen && (
         <div className="md:hidden bg-[#0B0C0E] border-b border-white/5 px-4 pb-4 pt-2 space-y-2">
-          <button onClick={() => { onNavigate('home'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('home')}</button>
-          <button onClick={() => { onNavigate('marketplace'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">سوق الأفكار</button>
-          <button onClick={() => { onNavigate('support'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('supportTitle')}</button>
+          <button onClick={() => handleNavigate('/')} className="block w-full text-start py-2 text-gray-300">{t('home')}</button>
+          <button onClick={() => handleNavigate('/marketplace')} className="block w-full text-start py-2 text-gray-300">سوق الأفكار</button>
+          <button onClick={() => handleNavigate('/support')} className="block w-full text-start py-2 text-gray-300">{t('supportTitle')}</button>
           {user && (
             <>
-              <button onClick={() => { onNavigate('messages'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">الرسائل</button>
-              <button onClick={() => { onNavigate('founder-dashboard'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">لوحة التحكم</button>
+              <button onClick={() => handleNavigate('/messages')} className="block w-full text-start py-2 text-gray-300">الرسائل</button>
+              <button onClick={() => handleNavigate('/dashboard')} className="block w-full text-start py-2 text-gray-300">لوحة التحكم</button>
             </>
           )}
-          <button onClick={() => { onNavigate('profile-skill'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المهارة</button>
-          <button onClick={() => { onNavigate('profile-founder'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المؤسس</button>
-          <button onClick={() => { onNavigate('profile-investor'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المستثمر</button>
+          <button onClick={() => handleNavigate('/profile-skill')} className="block w-full text-start py-2 text-gray-300">ملف المهارة</button>
+          <button onClick={() => handleNavigate('/profile-founder')} className="block w-full text-start py-2 text-gray-300">ملف المؤسس</button>
+          <button onClick={() => handleNavigate('/profile-investor')} className="block w-full text-start py-2 text-gray-300">ملف المستثمر</button>
           <button onClick={() => { onFeedback(); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('feedback')}</button>
           {user ? (
             <button onClick={() => { signOut(); setIsOpen(false); }} className="block w-full text-start py-2 text-[#FFD700]">تسجيل خروج</button>
           ) : (
-            <button onClick={() => { onNavigate('register'); setIsOpen(false); }} className="block w-full text-start py-2 text-[#FFD700]">{t('startJourney')}</button>
+            <button onClick={() => handleNavigate('/login')} className="block w-full text-start py-2 text-[#FFD700]">{t('startJourney')}</button>
           )}
         </div>
       )}
@@ -187,8 +195,9 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
   );
 };
 
-const Footer = ({ onNavigate }: { onNavigate?: (page: Page) => void }) => {
+const Footer = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   return (
     <footer className="bg-[#0B0C0E] border-t border-white/5 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -202,9 +211,9 @@ const Footer = ({ onNavigate }: { onNavigate?: (page: Page) => void }) => {
           <div>
             <h4 className="font-bold mb-4 text-white">{t('platform')}</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><button onClick={() => onNavigate?.('about')} className="hover:text-[#FFD700] transition-colors">من نحن</button></li>
-              <li><button onClick={() => onNavigate?.('contact')} className="hover:text-[#FFD700] transition-colors">تواصل معنا</button></li>
-              <li><button onClick={() => onNavigate?.('support')} className="hover:text-[#FFD700] transition-colors">{t('supportTitle')}</button></li>
+              <li><button onClick={() => navigate('/about')} className="hover:text-[#FFD700] transition-colors">من نحن</button></li>
+              <li><button onClick={() => navigate('/contact')} className="hover:text-[#FFD700] transition-colors">تواصل معنا</button></li>
+              <li><button onClick={() => navigate('/support')} className="hover:text-[#FFD700] transition-colors">{t('supportTitle')}</button></li>
               <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('features')}</a></li>
               <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('pricingTitle')}</a></li>
             </ul>
@@ -212,8 +221,8 @@ const Footer = ({ onNavigate }: { onNavigate?: (page: Page) => void }) => {
           <div>
             <h4 className="font-bold mb-4 text-white">{t('legal')}</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><button onClick={() => onNavigate?.('privacy')} className="hover:text-[#FFD700] transition-colors">سياسة الخصوصية</button></li>
-              <li><button onClick={() => onNavigate?.('terms')} className="hover:text-[#FFD700] transition-colors">شروط الاستخدام</button></li>
+              <li><button onClick={() => navigate('/privacy')} className="hover:text-[#FFD700] transition-colors">سياسة الخصوصية</button></li>
+              <li><button onClick={() => navigate('/terms')} className="hover:text-[#FFD700] transition-colors">شروط الاستخدام</button></li>
             </ul>
           </div>
           <div>
@@ -238,8 +247,9 @@ const Footer = ({ onNavigate }: { onNavigate?: (page: Page) => void }) => {
   );
 };
 
-const Hero = ({ onStart }: { onStart: () => void }) => {
+const Hero = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
       {/* Background Gradients */}
@@ -267,7 +277,7 @@ const Hero = ({ onStart }: { onStart: () => void }) => {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 items-center mb-16">
-            <button onClick={onStart} className="btn-linear-primary px-8 py-4 rounded-full text-lg min-w-[200px]">
+            <button onClick={() => navigate('/login')} className="btn-linear-primary px-8 py-4 rounded-full text-lg min-w-[200px]">
               {t('startJourney')}
             </button>
             <button className="btn-linear-secondary px-8 py-4 rounded-full text-lg min-w-[200px] flex items-center justify-center gap-2 group">
@@ -1128,13 +1138,14 @@ export default function App() {
 
 function AppContent() {
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState<Page>('home');
   const [userType, setUserType] = useState<UserType>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [showSessionWarning, setShowSessionWarning] = useState(false);
   const { user, signOut } = useAuth();
   const sessionTimer = useRef<NodeJS.Timeout>();
   const warningTimer = useRef<NodeJS.Timeout>();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const resetSessionTimer = () => {
     if (sessionTimer.current) clearTimeout(sessionTimer.current);
@@ -1145,7 +1156,7 @@ function AppContent() {
       warningTimer.current = setTimeout(() => setShowSessionWarning(true), WARNING_TIMEOUT_MS);
       sessionTimer.current = setTimeout(() => {
         signOut();
-        setPage('home');
+        navigate('/');
       }, SESSION_TIMEOUT_MS);
     }
   };
@@ -1172,18 +1183,15 @@ function AppContent() {
       setUserType(storedUserType as UserType);
       // If we have data, we can skip to dashboard, but let's keep loading screen for effect
       // The loading screen will finish and then we'll be on dashboard
-      setPage('dashboard');
+      if (location.pathname === '/') {
+        navigate('/dashboard');
+      }
     }
   }, []);
 
-  const handleStart = () => {
-    setPage('register');
-    window.scrollTo(0, 0);
-  };
-
   const handleUserTypeSelect = (type: UserType) => {
     setUserType(type);
-    setPage('onboarding');
+    navigate('/onboarding');
     window.scrollTo(0, 0);
   };
 
@@ -1212,7 +1220,7 @@ function AppContent() {
         }
       }
     }
-    setPage('dashboard');
+    navigate('/dashboard');
     window.scrollTo(0, 0);
   };
 
@@ -1240,161 +1248,140 @@ function AppContent() {
 
       {!loading && (
         <div className="min-h-screen flex flex-col font-sans">
-          <Navbar onNavigate={setPage} onFeedback={() => setIsFeedbackOpen(true)} />
+          <Navbar onFeedback={() => setIsFeedbackOpen(true)} />
           
           <main className="flex-grow">
             <Suspense fallback={<PageLoader />}>
               <AnimatePresence mode="wait">
-                {page === 'home' && (
-                <motion.div
-                  key="home"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <Hero onStart={handleStart} />
-                  <ProblemSolution />
-                  <Pricing />
-                  <RaedSection />
-                </motion.div>
-              )}
+                <Routes location={location} key={location.pathname}>
+                  <Route path="/" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <Hero />
+                      <ProblemSolution />
+                      <Pricing />
+                      <RaedSection />
+                    </motion.div>
+                  } />
+                  
+                  <Route path="/login" element={
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                      <RegisterPage onSelectType={handleUserTypeSelect} />
+                    </motion.div>
+                  } />
 
-              {page === 'register' && (
-                <motion.div
-                  key="register"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                >
-                  <RegisterPage onSelectType={handleUserTypeSelect} />
-                </motion.div>
-              )}
+                  <Route path="/about" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <AboutPage />
+                    </motion.div>
+                  } />
 
-              {page === 'marketplace' && (
-                <motion.div
-                  key="marketplace"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <Marketplace />
-                </motion.div>
-              )}
+                  <Route path="/contact" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <ContactPage />
+                    </motion.div>
+                  } />
 
-              {page === 'profile-skill' && (
-                <motion.div
-                  key="profile-skill"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <SkillProfile />
-                </motion.div>
-              )}
+                  <Route path="/privacy" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <PrivacyPage />
+                    </motion.div>
+                  } />
 
-              {page === 'profile-founder' && (
-                <motion.div
-                  key="profile-founder"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <FounderProfile />
-                </motion.div>
-              )}
+                  <Route path="/terms" element={
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <TermsPage />
+                    </motion.div>
+                  } />
 
-              {page === 'profile-investor' && (
-                <motion.div
-                  key="profile-investor"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <InvestorProfile />
-                </motion.div>
-              )}
+                  {/* Protected Routes */}
+                  <Route path="/marketplace" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <Marketplace />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'onboarding' && (
-                <motion.div
-                  key="onboarding"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                >
-                  <Onboarding userType={userType} onComplete={handleOnboardingComplete} />
-                </motion.div>
-              )}
+                  <Route path="/profile-skill" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <SkillProfile />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'dashboard' && (
-                <motion.div
-                  key="dashboard"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <Dashboard userType={userType} />
-                </motion.div>
-              )}
+                  <Route path="/profile-founder" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <FounderProfile />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'about' && (
-                <motion.div key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <AboutPage />
-                </motion.div>
-              )}
+                  <Route path="/profile-investor" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <InvestorProfile />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'contact' && (
-                <motion.div key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ContactPage />
-                </motion.div>
-              )}
+                  <Route path="/onboarding" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                        <Onboarding userType={userType} onComplete={handleOnboardingComplete} />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'privacy' && (
-                <motion.div key="privacy" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <PrivacyPage />
-                </motion.div>
-              )}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <Dashboard userType={userType} />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'terms' && (
-                <motion.div key="terms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <TermsPage />
-                </motion.div>
-              )}
+                  <Route path="/messages" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <MessagesPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'messages' && (
-                <motion.div key="messages" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <MessagesPage />
-                </motion.div>
-              )}
+                  <Route path="/referral" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <ReferralPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'referral' && (
-                <motion.div key="referral" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ReferralPage />
-                </motion.div>
-              )}
+                  <Route path="/contract" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <ContractPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'contract' && (
-                <motion.div key="contract" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ContractPage />
-                </motion.div>
-              )}
+                  <Route path="/support" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <SupportPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
 
-              {page === 'support' && (
-                <motion.div key="support" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <SupportPage />
-                </motion.div>
-              )}
-
-              {page === 'founder-dashboard' && (
-                <motion.div key="founder-dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <FounderDashboard />
-                </motion.div>
-              )}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
               </AnimatePresence>
             </Suspense>
-            <RAEDChat />
+            {user && <RAEDChat />}
           </main>
 
-          <Footer onNavigate={setPage} />
+          <Footer />
           <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
           <CookieConsent />
         </div>
