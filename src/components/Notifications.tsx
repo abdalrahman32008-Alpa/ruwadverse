@@ -18,6 +18,37 @@ export const Notifications = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const playNotificationSound = () => {
+    // Simple beep using Web Audio API
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    
+    oscillator.start();
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
+    oscillator.stop(audioCtx.currentTime + 0.5);
+  };
+
+  const showBrowserNotification = (title: string, body: string) => {
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body, icon: '/logo.png' });
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
 
@@ -52,7 +83,9 @@ export const Notifications = () => {
         const newNotification = payload.new as Notification;
         setNotifications(prev => [newNotification, ...prev]);
         setUnreadCount(prev => prev + 1);
-        new Audio('/notification.mp3').play().catch(() => {});
+        
+        playNotificationSound();
+        showBrowserNotification('إشعار جديد', newNotification.content);
       })
       .subscribe();
 
@@ -83,7 +116,7 @@ export const Notifications = () => {
       >
         <Bell size={20} />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse border-2 border-[#0B0C0E]">
             {unreadCount}
           </span>
         )}
@@ -97,18 +130,18 @@ export const Notifications = () => {
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             className="absolute left-0 mt-2 w-80 bg-[#141517] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
           >
-            <div className="p-3 border-b border-white/10 flex justify-between items-center">
+            <div className="p-3 border-b border-white/10 flex justify-between items-center bg-[#141517]">
               <h3 className="font-bold text-white text-sm">الإشعارات</h3>
               <button onClick={markAllAsRead} className="text-xs text-[#FFD700] hover:underline">تحديد الكل كمقروء</button>
             </div>
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto bg-[#141517]">
               {notifications.length === 0 ? (
                 <div className="p-4 text-center text-gray-500 text-sm">لا توجد إشعارات جديدة</div>
               ) : (
                 notifications.map(notification => (
                   <div 
                     key={notification.id}
-                    className={`p-3 border-b border-white/5 hover:bg-white/5 transition-colors ${!notification.read ? 'bg-white/5' : ''}`}
+                    className={`p-3 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer ${!notification.read ? 'bg-white/5' : ''}`}
                     onClick={() => markAsRead(notification.id)}
                   >
                     <div className="flex justify-between items-start mb-1">
@@ -117,7 +150,7 @@ export const Notifications = () => {
                       </span>
                       <span className="text-[10px] text-gray-500">{new Date(notification.created_at).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-sm text-gray-300">{notification.content}</p>
+                    <p className="text-sm text-gray-300 mt-1">{notification.content}</p>
                   </div>
                 ))
               )}

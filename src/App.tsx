@@ -11,7 +11,7 @@ import { useLanguage } from './contexts/LanguageContext';
 import { CookieConsent } from './components/CookieConsent';
 import { PaymentModal } from './components/PaymentModal';
 import { ExploreSection } from './components/ExploreSection';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { SocialLogin } from './components/SocialLogin';
 import { SkillProfile } from './components/profiles/SkillProfile';
 import { FounderProfile } from './components/profiles/FounderProfile';
@@ -31,13 +31,18 @@ const TermsPage = React.lazy(() => import('./pages/TermsPage').then(module => ({
 const MessagesPage = React.lazy(() => import('./pages/MessagesPage').then(module => ({ default: module.MessagesPage })));
 const ReferralPage = React.lazy(() => import('./pages/ReferralPage').then(module => ({ default: module.ReferralPage })));
 const ContractPage = React.lazy(() => import('./pages/ContractPage').then(module => ({ default: module.ContractPage })));
+const SupportPage = React.lazy(() => import('./pages/SupportPage').then(module => ({ default: module.SupportPage })));
 const FounderDashboard = React.lazy(() => import('./pages/FounderDashboard').then(module => ({ default: module.FounderDashboard })));
 
 // --- Types ---
 type UserType = 'idea' | 'skill' | 'investor' | null;
-type Page = 'home' | 'register' | 'onboarding' | 'dashboard' | 'profile-skill' | 'profile-founder' | 'profile-investor' | 'marketplace' | 'about' | 'contact' | 'privacy' | 'terms' | 'messages' | 'referral' | 'contract' | 'founder-dashboard';
+type Page = 'home' | 'register' | 'onboarding' | 'dashboard' | 'profile-skill' | 'profile-founder' | 'profile-investor' | 'marketplace' | 'about' | 'contact' | 'privacy' | 'terms' | 'messages' | 'referral' | 'contract' | 'founder-dashboard' | 'support';
 
 // --- Components ---
+
+import { KYCVerification } from './components/KYCVerification';
+import { SESSION_TIMEOUT_MS, WARNING_TIMEOUT_MS } from './utils/security';
+import { calculateUserLevel } from './utils/gamification';
 
 const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
@@ -92,6 +97,7 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
             <div className="ml-10 flex items-center space-x-6 space-x-reverse rtl:space-x-reverse ltr:space-x-reverse">
               <button onClick={() => onNavigate('home')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('home')}</button>
               <button onClick={() => onNavigate('marketplace')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">سوق الأفكار</button>
+              <button onClick={() => onNavigate('support')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('supportTitle')}</button>
               
               {user && (
                 <>
@@ -157,6 +163,7 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
         <div className="md:hidden bg-[#0B0C0E] border-b border-white/5 px-4 pb-4 pt-2 space-y-2">
           <button onClick={() => { onNavigate('home'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('home')}</button>
           <button onClick={() => { onNavigate('marketplace'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">سوق الأفكار</button>
+          <button onClick={() => { onNavigate('support'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('supportTitle')}</button>
           {user && (
             <>
               <button onClick={() => { onNavigate('messages'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">الرسائل</button>
@@ -195,8 +202,9 @@ const Footer = ({ onNavigate }: { onNavigate?: (page: Page) => void }) => {
             <ul className="space-y-2 text-sm text-gray-400">
               <li><button onClick={() => onNavigate?.('about')} className="hover:text-[#FFD700] transition-colors">من نحن</button></li>
               <li><button onClick={() => onNavigate?.('contact')} className="hover:text-[#FFD700] transition-colors">تواصل معنا</button></li>
+              <li><button onClick={() => onNavigate?.('support')} className="hover:text-[#FFD700] transition-colors">{t('supportTitle')}</button></li>
               <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('features')}</a></li>
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('pricing')}</a></li>
+              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('pricingTitle')}</a></li>
             </ul>
           </div>
           <div>
@@ -360,7 +368,7 @@ const Pricing = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">{t('pricingTitle')}</h2>
             <p className="text-[#8A8F98] max-w-2xl mx-auto">
-              {t('problem2Desc')}
+              اختر الخطة المناسبة لاحتياجاتك. ابدأ مجاناً أو احصل على ميزات احترافية مع باقة رائد Pro.
             </p>
           </div>
 
@@ -375,15 +383,23 @@ const Pricing = () => {
               <ul className="space-y-4 mb-8 text-sm text-gray-300">
                 <li className="flex items-center gap-3">
                   <Check size={16} className="text-green-500" />
-                  <span>{t('ideaTitle')} Listing</span>
+                  <span>ملف شخصي كامل</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check size={16} className="text-green-500" />
-                  <span>Basic RAED Analysis</span>
+                  <span>تقديم 3 أفكار شهرياً</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check size={16} className="text-green-500" />
-                  <span>Community Access</span>
+                  <span>تحليل RAED الأساسي</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Check size={16} className="text-green-500" />
+                  <span>تصفح سوق الأفكار</span>
+                </li>
+                <li className="flex items-center gap-3 text-gray-600">
+                  <X size={16} />
+                  <span>تواصل مباشر مع المستثمرين</span>
                 </li>
               </ul>
               <button 
@@ -397,36 +413,40 @@ const Pricing = () => {
             {/* Pro Plan */}
             <div className="linear-card p-8 rounded-3xl border border-[#FFD700]/30 relative group hover:border-[#FFD700] transition-all bg-[#FFD700]/5">
               <div className="absolute top-0 right-0 bg-[#FFD700] text-black text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">
-                POPULAR
+                الأكثر اختياراً
               </div>
               <h3 className="text-2xl font-bold mb-2 text-[#FFD700]">{t('proPlan')}</h3>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold">99</span>
+                <span className="text-4xl font-bold">299</span>
                 <span className="text-sm text-gray-400">{t('sar')} / {t('month')}</span>
               </div>
               <ul className="space-y-4 mb-8 text-sm text-gray-300">
                 <li className="flex items-center gap-3">
                   <Check size={16} className="text-[#FFD700]" />
-                  <span>Advanced AI Matching</span>
+                  <span>أفكار ورسائل غير محدودة</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check size={16} className="text-[#FFD700]" />
-                  <span>Unlimited RAED Insights</span>
+                  <span>تحليل RAED المتعمق</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check size={16} className="text-[#FFD700]" />
-                  <span>Investor Direct Access</span>
+                  <span>تواصل مباشر مع المستثمرين</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check size={16} className="text-[#FFD700]" />
-                  <span>Verified Badge (KYC)</span>
+                  <span>عقود رقمية قانونية</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Check size={16} className="text-[#FFD700]" />
+                  <span>شارة Pro ولوحة إحصائيات متقدمة</span>
                 </li>
               </ul>
               <button 
                 onClick={() => handleSubscribe('pro')}
                 className="w-full py-3 rounded-xl bg-[#FFD700] text-black hover:bg-[#FFC000] transition-colors font-bold text-sm shadow-lg shadow-[#FFD700]/20"
               >
-                {t('subscribe')}
+                جرّب Pro شهراً مجاناً
               </button>
               <div className="mt-4 text-center">
                 <p className="text-xs text-gray-500 mb-2">{t('paymentMethods')}</p>
@@ -632,37 +652,12 @@ const RaedSection = () => {
 const RegisterPage = ({ onSelectType }: { onSelectType: (type: UserType) => void }) => {
   const { t } = useLanguage();
   const [showKYC, setShowKYC] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const types = [
     { id: 'idea', title: t('ideaTitle'), icon: <Lightbulb size={28} />, desc: t('ideaDesc'), color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
     { id: 'skill', title: t('skillTitle'), icon: <Briefcase size={28} />, desc: t('skillDesc'), color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
     { id: 'investor', title: t('investorTitle'), icon: <TrendingUp size={28} />, desc: t('investorDesc'), color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/20' },
   ];
-
-  const startKYC = async () => {
-    setShowKYC(true);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setIsVerifying(true);
-      setTimeout(() => {
-        setIsVerifying(false);
-        setVerified(true);
-        if (videoRef.current?.srcObject) {
-          const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-          tracks.forEach(track => track.stop());
-        }
-      }, 3000);
-    } catch (err) {
-      console.error("Camera access denied", err);
-      // Fallback or error handling
-    }
-  };
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-4 flex items-center justify-center">
@@ -698,10 +693,10 @@ const RegisterPage = ({ onSelectType }: { onSelectType: (type: UserType) => void
               </button>
             ))}
             
-            {/* KYC Trigger Mock - Optional Step before full registration */}
+            {/* KYC Trigger */}
             <div className="md:col-span-3 mt-8 flex justify-center">
                <button 
-                 onClick={startKYC}
+                 onClick={() => setShowKYC(true)}
                  className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#FFD700] transition-colors border border-white/10 px-4 py-2 rounded-full hover:border-[#FFD700]/30"
                >
                  <Shield size={14} />
@@ -710,49 +705,7 @@ const RegisterPage = ({ onSelectType }: { onSelectType: (type: UserType) => void
             </div>
           </div>
         ) : (
-          <div className="max-w-md mx-auto linear-card p-1 rounded-3xl">
-            <div className="bg-[#141517] rounded-[20px] p-8 text-center">
-              <h3 className="text-xl font-bold mb-6">{t('verifyIdentity')}</h3>
-              
-              <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden mb-6 border border-white/10">
-                {!verified ? (
-                  <>
-                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-48 h-48 border-2 border-[#FFD700] rounded-full opacity-50 animate-pulse" />
-                    </div>
-                    {isVerifying && (
-                      <div className="absolute bottom-4 left-0 right-0 text-center">
-                        <span className="bg-black/50 px-3 py-1 rounded-full text-xs text-[#FFD700]">{t('faceDetection')}</span>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-green-500/10">
-                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-                      <Check size={32} className="text-white" />
-                    </div>
-                    <p className="text-green-400 font-bold">{t('kycSuccess')}</p>
-                  </div>
-                )}
-              </div>
-
-              {verified && (
-                <button 
-                  onClick={() => setShowKYC(false)}
-                  className="w-full bg-[#FFD700] text-black font-bold py-3 rounded-xl hover:bg-[#FFC000] transition-colors"
-                >
-                  {t('next')}
-                </button>
-              )}
-              
-              {!verified && (
-                 <p className="text-xs text-gray-500 mt-4">
-                   Mock Identity Verification using Face Detection API
-                 </p>
-              )}
-            </div>
-          </div>
+          <KYCVerification onComplete={() => setShowKYC(false)} />
         )}
       </div>
     </div>
@@ -763,6 +716,10 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'matches' | 'performance'>('overview');
+  
+  // Mock user points for demo
+  const userPoints = 150; 
+  const { level, progress, nextLevelPoints } = calculateUserLevel(userPoints);
 
   useEffect(() => {
     const data = getDailyMarketInsight();
@@ -815,12 +772,46 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
               <span className="w-1.5 h-1.5 rounded-full bg-[#FFD700]" />
               {userType === 'idea' ? t('userTypeIdea') : userType === 'skill' ? t('userTypeSkill') : t('userTypeInvestor')}
             </p>
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-2 mb-4">
               <span className="px-3 py-1 bg-[#141517] border border-white/10 rounded-full text-xs text-gray-400">{t('completeProfile')}</span>
               <span className="px-3 py-1 bg-[#141517] border border-green-500/20 text-green-400 rounded-full text-xs flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                 {t('online')}
               </span>
+            </div>
+            
+            {/* Gamification Level */}
+            <div className="bg-[#141517] rounded-xl p-3 border border-white/5">
+              <div className="flex justify-between items-center text-xs mb-2">
+                <span className="text-gray-400">Level: <span className="text-[#FFD700] font-bold">{level}</span></span>
+                <span className="text-gray-500">{userPoints} / {nextLevelPoints} XP</span>
+              </div>
+              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 1 }}
+                  className="h-full bg-gradient-to-r from-[#FFD700] to-amber-500"
+                />
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div className="grid grid-cols-3 gap-2 mt-6 border-t border-white/5 pt-4">
+              <button className="bg-[#141517] border border-white/10 p-2 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-white/5 transition-colors group">
+                <MessageSquare size={16} className="text-[#FFD700] group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] text-gray-400">Chat RAED</span>
+              </button>
+              <button className="bg-[#141517] border border-white/10 p-2 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-white/5 transition-colors group">
+                <div className="w-4 h-4 rounded-full border border-white/30 flex items-center justify-center group-hover:border-[#FFD700]">
+                  <div className="w-2 h-2 bg-white rounded-full group-hover:bg-[#FFD700]" />
+                </div>
+                <span className="text-[10px] text-gray-400">Edit</span>
+              </button>
+              <button className="bg-[#141517] border border-white/10 p-2 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-white/5 transition-colors group">
+                <Globe size={16} className="text-blue-400 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] text-gray-400">Share</span>
+              </button>
             </div>
           </div>
 
@@ -1004,8 +995,70 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
           {activeTab === 'performance' && (
              <div className="space-y-4">
                <h3 className="text-xl font-bold mb-4">{t('performance')}</h3>
-               <div className="grid md:grid-cols-2 gap-4">
-                 <div className="linear-card p-6 rounded-2xl">
+               
+               {/* Key Metrics */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                 <div className="linear-card p-6 rounded-2xl border border-white/5">
+                   <h4 className="text-sm text-gray-400 mb-2">Profile Strength</h4>
+                   <div className="flex items-end gap-2">
+                     <div className="text-3xl font-bold text-[#FFD700]">85%</div>
+                     <span className="text-xs text-green-400 mb-1">Excellent</span>
+                   </div>
+                   <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">
+                     <motion.div 
+                       initial={{ width: 0 }}
+                       animate={{ width: '85%' }}
+                       transition={{ duration: 1 }}
+                       className="bg-[#FFD700] h-full rounded-full" 
+                     />
+                   </div>
+                 </div>
+                 
+                 <div className="linear-card p-6 rounded-2xl border border-white/5">
+                   <h4 className="text-sm text-gray-400 mb-2">Response Rate</h4>
+                   <div className="text-3xl font-bold text-green-400">92%</div>
+                   <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                     <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                     Avg. response time: 2h
+                   </p>
+                 </div>
+                 
+                 <div className="linear-card p-6 rounded-2xl border border-white/5">
+                   <h4 className="text-sm text-gray-400 mb-2">Top Idea</h4>
+                   <div className="text-xl font-bold text-white truncate mb-1">FinTech Pay</div>
+                   <div className="flex items-center gap-1 text-xs text-green-400">
+                     <TrendingUp size={12} />
+                     <span>+15% engagement this week</span>
+                   </div>
+                 </div>
+               </div>
+
+               <div className="grid md:grid-cols-3 gap-4">
+                 {/* Engagement Chart */}
+                 <div className="md:col-span-2 linear-card p-6 rounded-2xl border border-white/5">
+                   <h4 className="text-sm text-gray-400 mb-4">Engagement Trend</h4>
+                   <div className="h-64 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={[
+                          {name: 'Jan', val: 400}, {name: 'Feb', val: 300}, {name: 'Mar', val: 600}, 
+                          {name: 'Apr', val: 800}, {name: 'May', val: 500}, {name: 'Jun', val: 900},
+                          {name: 'Jul', val: 1000}
+                        ]}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                          <XAxis dataKey="name" stroke="#666" tick={{fontSize: 12}} axisLine={false} tickLine={false} />
+                          <YAxis stroke="#666" tick={{fontSize: 12}} axisLine={false} tickLine={false} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#141517', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                            itemStyle={{ color: '#FFD700' }}
+                          />
+                          <Line type="monotone" dataKey="val" stroke="#FFD700" strokeWidth={3} dot={{r: 4, fill: '#141517', strokeWidth: 2}} activeDot={{r: 6}} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                   </div>
+                 </div>
+
+                 {/* Partnership Pie Chart */}
+                 <div className="linear-card p-6 rounded-2xl border border-white/5">
                    <h4 className="text-sm text-gray-400 mb-4">{t('partnershipCalc')}</h4>
                    <div className="h-64 w-full">
                      <ResponsiveContainer width="100%" height="100%">
@@ -1076,7 +1129,38 @@ function AppContent() {
   const [page, setPage] = useState<Page>('home');
   const [userType, setUserType] = useState<UserType>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const { user } = useAuth();
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
+  const { user, signOut } = useAuth();
+  const sessionTimer = useRef<NodeJS.Timeout>();
+  const warningTimer = useRef<NodeJS.Timeout>();
+
+  const resetSessionTimer = () => {
+    if (sessionTimer.current) clearTimeout(sessionTimer.current);
+    if (warningTimer.current) clearTimeout(warningTimer.current);
+    setShowSessionWarning(false);
+
+    if (user) {
+      warningTimer.current = setTimeout(() => setShowSessionWarning(true), WARNING_TIMEOUT_MS);
+      sessionTimer.current = setTimeout(() => {
+        signOut();
+        setPage('home');
+      }, SESSION_TIMEOUT_MS);
+    }
+  };
+
+  useEffect(() => {
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    const handleActivity = () => resetSessionTimer();
+
+    events.forEach(event => window.addEventListener(event, handleActivity));
+    resetSessionTimer();
+
+    return () => {
+      events.forEach(event => window.removeEventListener(event, handleActivity));
+      if (sessionTimer.current) clearTimeout(sessionTimer.current);
+      if (warningTimer.current) clearTimeout(warningTimer.current);
+    };
+  }, [user]);
 
   useEffect(() => {
     const storedUserType = localStorage.getItem('ruwad_user_type');
@@ -1135,6 +1219,21 @@ function AppContent() {
       <Analytics />
       <AnimatePresence>
         {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
+        {showSessionWarning && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-8 right-8 z-50 bg-[#141517] border border-red-500/20 p-6 rounded-2xl shadow-2xl max-w-sm"
+          >
+            <h4 className="text-lg font-bold text-white mb-2">انتهت جلستك</h4>
+            <p className="text-gray-400 text-sm mb-4">هل تريد البقاء متصلاً؟ سيتم تسجيل خروجك خلال دقيقة.</p>
+            <div className="flex gap-3">
+              <button onClick={resetSessionTimer} className="flex-1 bg-[#FFD700] text-black font-bold py-2 rounded-lg text-sm">نعم، ابقني متصلاً</button>
+              <button onClick={() => signOut()} className="flex-1 bg-white/10 text-white font-bold py-2 rounded-lg text-sm">خروج</button>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {!loading && (
@@ -1274,6 +1373,12 @@ function AppContent() {
               {page === 'contract' && (
                 <motion.div key="contract" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <ContractPage />
+                </motion.div>
+              )}
+
+              {page === 'support' && (
+                <motion.div key="support" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <SupportPage />
                 </motion.div>
               )}
 

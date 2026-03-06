@@ -175,8 +175,8 @@ export const translations = {
     // Pricing
     pricingTitle: "خطط الأسعار",
     freePlan: "مجاني",
-    proPlan: "محترف",
-    sar: "ر.س",
+    proPlan: "رائد Pro",
+    sar: "ج.م",
     month: "شهر",
     subscribe: "اشترك الآن",
     paymentMethods: "طرق الدفع الآمنة",
@@ -197,6 +197,18 @@ export const translations = {
     endorse: "تأييد",
     share: "مشاركة",
     inviteFriend: "دعوة صديق",
+    
+    // Support
+    supportTitle: "مركز المساعدة والدعم",
+    faq: "الأسئلة الشائعة",
+    contactUs: "تواصل معنا",
+    send: "إرسال",
+    
+    // KYC
+    kycTitle: "التحقق من الهوية (KYC)",
+    startKyc: "ابدأ التحقق",
+    kycVerified: "موثق",
+    kycPending: "قيد المراجعة",
   },
   en: {
     // Navbar
@@ -260,7 +272,7 @@ export const translations = {
     emailLabel: "Email",
     industryLabel: "Preferred Industry",
     skillsLabel: "Skills (comma separated)",
-    budgetLabel: "Expected Budget (SAR)",
+    budgetLabel: "Expected Budget (EGP)",
     bioLabel: "Bio",
     
     // Onboarding Questions
@@ -342,7 +354,7 @@ export const translations = {
     valuation: "Valuation",
     team: "Team",
     raedScore: "RAED Score",
-    sar3m: "3M SAR",
+    sar3m: "3M EGP",
     complete: "Complete",
     
     // Chat Interface
@@ -374,8 +386,8 @@ export const translations = {
     // Pricing
     pricingTitle: "Pricing Plans",
     freePlan: "Free",
-    proPlan: "Pro",
-    sar: "SAR",
+    proPlan: "Raed Pro",
+    sar: "EGP",
     month: "month",
     subscribe: "Subscribe Now",
     paymentMethods: "Secure Payment Methods",
@@ -396,5 +408,17 @@ export const translations = {
     endorse: "Endorse",
     share: "Share",
     inviteFriend: "Invite Friend",
+    
+    // Support
+    supportTitle: "Help Center",
+    faq: "FAQ",
+    contactUs: "Contact Us",
+    send: "Send",
+    
+    // KYC
+    kycTitle: "Identity Verification (KYC)",
+    startKyc: "Start Verification",
+    kycVerified: "Verified",
+    kycPending: "Pending",
   }
 };
