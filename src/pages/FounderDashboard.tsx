@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { Eye, Users, TrendingUp, DollarSign, Activity, Target, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Eye, Users, TrendingUp, DollarSign, Activity, Target, ArrowUpRight, ArrowDownRight, Plus } from 'lucide-react';
+import { IdeaAnalyzer } from '../components/IdeaAnalyzer';
 
 export const FounderDashboard = () => {
+  const [showAnalyzer, setShowAnalyzer] = useState(false);
   const [stats, setStats] = useState({
     views: 12450,
     requests: 85,
@@ -37,9 +39,18 @@ export const FounderDashboard = () => {
           <h1 className="text-3xl font-bold text-white">لوحة التحكم</h1>
           <div className="flex gap-2">
             <button className="px-4 py-2 bg-[#141517] border border-white/10 rounded-xl text-sm text-gray-300 hover:text-white hover:border-white/20 transition-all">تصدير التقرير</button>
-            <button className="px-4 py-2 bg-[#FFD700] text-black font-bold rounded-xl hover:bg-[#FFC000] transition-all text-sm">إضافة فكرة جديدة</button>
+            <button onClick={() => setShowAnalyzer(!showAnalyzer)} className="px-4 py-2 bg-[#FFD700] text-black font-bold rounded-xl hover:bg-[#FFC000] transition-all text-sm flex items-center gap-2">
+              <Plus size={16} />
+              {showAnalyzer ? 'إخفاء محلل الأفكار' : 'إضافة فكرة جديدة (RAED)'}
+            </button>
           </div>
         </div>
+
+        {showAnalyzer && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-8">
+            <IdeaAnalyzer />
+          </motion.div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

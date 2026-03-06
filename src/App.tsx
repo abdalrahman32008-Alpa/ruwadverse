@@ -23,6 +23,8 @@ import { Analytics } from './components/Analytics';
 import { Skeleton } from './components/Skeleton';
 import { supabase } from './lib/supabase';
 
+import { RAEDChat } from './chat/RAEDChat';
+
 // Lazy Load Pages
 const AboutPage = React.lazy(() => import('./pages/AboutPage').then(module => ({ default: module.AboutPage })));
 const ContactPage = React.lazy(() => import('./pages/ContactPage').then(module => ({ default: module.ContactPage })));
@@ -1389,6 +1391,7 @@ function AppContent() {
               )}
               </AnimatePresence>
             </Suspense>
+            <RAEDChat />
           </main>
 
           <Footer onNavigate={setPage} />
