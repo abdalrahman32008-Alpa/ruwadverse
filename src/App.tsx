@@ -17,10 +17,20 @@ import { SkillProfile } from './components/profiles/SkillProfile';
 import { FounderProfile } from './components/profiles/FounderProfile';
 import { InvestorProfile } from './components/profiles/InvestorProfile';
 import { Marketplace } from './components/Marketplace';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { TermsPage } from './pages/TermsPage';
+import { MessagesPage } from './pages/MessagesPage';
+import { ReferralPage } from './pages/ReferralPage';
+import { ContractPage } from './pages/ContractPage';
+import { FounderDashboard } from './pages/FounderDashboard';
+import { Notifications } from './components/Notifications';
 
 // --- Types ---
 type UserType = 'idea' | 'skill' | 'investor' | null;
-type Page = 'home' | 'register' | 'onboarding' | 'dashboard' | 'profile-skill' | 'profile-founder' | 'profile-investor' | 'marketplace';
+type Page = 'home' | 'register' | 'onboarding' | 'dashboard' | 'profile-skill' | 'profile-founder' | 'profile-investor' | 'marketplace' | 'about' | 'contact' | 'privacy' | 'terms' | 'messages' | 'referral' | 'contract' | 'founder-dashboard';
 
 // --- Components ---
 
@@ -60,6 +70,7 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
 const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, onFeedback: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t, language, setLanguage, dir } = useLanguage();
+  const { user, signOut } = useAuth();
 
   const toggleLanguage = () => {
     setLanguage(language === 'ar' ? 'en' : 'ar');
@@ -76,6 +87,14 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
             <div className="ml-10 flex items-center space-x-6 space-x-reverse rtl:space-x-reverse ltr:space-x-reverse">
               <button onClick={() => onNavigate('home')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('home')}</button>
               <button onClick={() => onNavigate('marketplace')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">سوق الأفكار</button>
+              
+              {user && (
+                <>
+                  <button onClick={() => onNavigate('messages')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">الرسائل</button>
+                  <button onClick={() => onNavigate('founder-dashboard')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">لوحة التحكم</button>
+                </>
+              )}
+
               <div className="relative group inline-block mx-3">
                 <button className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
                   الملفات <ChevronDown size={14} />
@@ -84,10 +103,21 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
                   <button onClick={() => onNavigate('profile-skill')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المهارة</button>
                   <button onClick={() => onNavigate('profile-founder')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المؤسس</button>
                   <button onClick={() => onNavigate('profile-investor')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">ملف المستثمر</button>
+                  {user && (
+                    <>
+                      <div className="h-px bg-white/10 my-1"></div>
+                      <button onClick={() => onNavigate('referral')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">برنامج الإحالة</button>
+                      <button onClick={() => onNavigate('contract')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700]">العقود</button>
+                    </>
+                  )}
                 </div>
               </div>
+              
               <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('features')}</a>
               <a href="#raed" className="text-sm text-gray-400 hover:text-white transition-colors mx-3">RAED</a>
+              
+              {user && <div className="mx-3"><Notifications /></div>}
+
               <button onClick={onFeedback} className="text-gray-400 hover:text-white transition-colors mx-3" title={t('feedback')} aria-label={t('feedback')}>
                 <MessageSquare size={18} aria-hidden="true" />
               </button>
@@ -96,9 +126,16 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
                 <span className="text-xs font-mono uppercase">{language === 'ar' ? 'EN' : 'AR'}</span>
               </button>
               <div className="h-4 w-px bg-white/10 mx-2" aria-hidden="true"></div>
-              <button onClick={() => onNavigate('register')} className="text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-full transition-all border border-white/5 mx-2">
-                {t('startNow')}
-              </button>
+              
+              {user ? (
+                <button onClick={signOut} className="text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-full transition-all border border-white/5 mx-2">
+                  تسجيل خروج
+                </button>
+              ) : (
+                <button onClick={() => onNavigate('register')} className="text-sm font-medium bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-full transition-all border border-white/5 mx-2">
+                  {t('startNow')}
+                </button>
+              )}
             </div>
           </div>
           <div className="-mr-2 flex md:hidden items-center gap-4">
@@ -115,67 +152,71 @@ const Navbar = ({ onNavigate, onFeedback }: { onNavigate: (page: Page) => void, 
         <div className="md:hidden bg-[#0B0C0E] border-b border-white/5 px-4 pb-4 pt-2 space-y-2">
           <button onClick={() => { onNavigate('home'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('home')}</button>
           <button onClick={() => { onNavigate('marketplace'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">سوق الأفكار</button>
+          {user && (
+            <>
+              <button onClick={() => { onNavigate('messages'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">الرسائل</button>
+              <button onClick={() => { onNavigate('founder-dashboard'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">لوحة التحكم</button>
+            </>
+          )}
           <button onClick={() => { onNavigate('profile-skill'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المهارة</button>
           <button onClick={() => { onNavigate('profile-founder'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المؤسس</button>
           <button onClick={() => { onNavigate('profile-investor'); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">ملف المستثمر</button>
           <button onClick={() => { onFeedback(); setIsOpen(false); }} className="block w-full text-start py-2 text-gray-300">{t('feedback')}</button>
-          <button onClick={() => { onNavigate('register'); setIsOpen(false); }} className="block w-full text-start py-2 text-[#FFD700]">{t('startJourney')}</button>
+          {user ? (
+            <button onClick={() => { signOut(); setIsOpen(false); }} className="block w-full text-start py-2 text-[#FFD700]">تسجيل خروج</button>
+          ) : (
+            <button onClick={() => { onNavigate('register'); setIsOpen(false); }} className="block w-full text-start py-2 text-[#FFD700]">{t('startJourney')}</button>
+          )}
         </div>
       )}
     </nav>
   );
 };
 
-const Footer = () => {
+const Footer = ({ onNavigate }: { onNavigate?: (page: Page) => void }) => {
   const { t } = useLanguage();
   return (
-    <footer className="bg-[#05070a] border-t border-white/5 py-12 mt-20 relative overflow-hidden">
+    <footer className="bg-[#0B0C0E] border-t border-white/5 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
-          <div className="col-span-1 md:col-span-2">
-            <Logo width="180" height="65" />
-            <p className="text-gray-500 mt-4 text-sm max-w-xs leading-relaxed">
+        <div className="grid md:grid-cols-4 gap-8">
+          <div>
+            <Logo width="120" height="40" />
+            <p className="mt-4 text-gray-400 text-sm leading-relaxed">
               {t('footerDesc')}
             </p>
-            <div className="flex gap-4 mt-6">
-              {/* Social Icons Mock */}
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-[#FFD700] hover:text-black transition-all" aria-label="Twitter">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" /></svg>
+          </div>
+          <div>
+            <h4 className="font-bold mb-4 text-white">{t('platform')}</h4>
+            <ul className="space-y-2 text-sm text-gray-400">
+              <li><button onClick={() => onNavigate?.('about')} className="hover:text-[#FFD700] transition-colors">من نحن</button></li>
+              <li><button onClick={() => onNavigate?.('contact')} className="hover:text-[#FFD700] transition-colors">تواصل معنا</button></li>
+              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('features')}</a></li>
+              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('pricing')}</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-4 text-white">{t('legal')}</h4>
+            <ul className="space-y-2 text-sm text-gray-400">
+              <li><button onClick={() => onNavigate?.('privacy')} className="hover:text-[#FFD700] transition-colors">سياسة الخصوصية</button></li>
+              <li><button onClick={() => onNavigate?.('terms')} className="hover:text-[#FFD700] transition-colors">شروط الاستخدام</button></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-4 text-white">{t('social')}</h4>
+            <div className="flex gap-4">
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#FFD700] hover:text-black transition-all">
+                <span className="sr-only">Twitter</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-[#FFD700] hover:text-black transition-all" aria-label="LinkedIn">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" /></svg>
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#FFD700] hover:text-black transition-all">
+                <span className="sr-only">LinkedIn</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
               </a>
             </div>
           </div>
-          
-          <div>
-            <h4 className="text-white font-bold mb-4">{t('about')}</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('features')}</a></li>
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('pricingTitle')}</a></li>
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('contact')}</a></li>
-            </ul>
-          </div>
-
-          <div id="privacy">
-            <h4 className="text-white font-bold mb-4">{t('privacy')}</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">{t('privacyPolicy')}</a></li>
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">GDPR</a></li>
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">CCPA</a></li>
-              <li><a href="#" className="hover:text-[#FFD700] transition-colors">ISO 27701</a></li>
-            </ul>
-          </div>
         </div>
-
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-600 text-xs">
-            {t('rights')}
-          </p>
-          <div className="flex items-center gap-2 text-xs text-green-500/80 bg-green-500/5 px-3 py-1 rounded-full border border-green-500/10">
-            <Shield size={12} />
-            {t('gdprCompliance')}
-          </div>
+        <div className="mt-12 pt-8 border-t border-white/5 text-center text-sm text-gray-500">
+          &copy; {new Date().getFullYear()} Ruwadverse. All rights reserved.
         </div>
       </div>
     </footer>
@@ -1004,10 +1045,19 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
 };
 
 export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+function AppContent() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState<Page>('home');
   const [userType, setUserType] = useState<UserType>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const storedUserType = localStorage.getItem('ruwad_user_type');
@@ -1144,10 +1194,58 @@ export default function App() {
                   <Dashboard userType={userType} />
                 </motion.div>
               )}
+
+              {page === 'about' && (
+                <motion.div key="about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <AboutPage />
+                </motion.div>
+              )}
+
+              {page === 'contact' && (
+                <motion.div key="contact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ContactPage />
+                </motion.div>
+              )}
+
+              {page === 'privacy' && (
+                <motion.div key="privacy" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <PrivacyPage />
+                </motion.div>
+              )}
+
+              {page === 'terms' && (
+                <motion.div key="terms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <TermsPage />
+                </motion.div>
+              )}
+
+              {page === 'messages' && (
+                <motion.div key="messages" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <MessagesPage />
+                </motion.div>
+              )}
+
+              {page === 'referral' && (
+                <motion.div key="referral" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ReferralPage />
+                </motion.div>
+              )}
+
+              {page === 'contract' && (
+                <motion.div key="contract" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ContractPage />
+                </motion.div>
+              )}
+
+              {page === 'founder-dashboard' && (
+                <motion.div key="founder-dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <FounderDashboard />
+                </motion.div>
+              )}
             </AnimatePresence>
           </main>
 
-          <Footer />
+          <Footer onNavigate={setPage} />
           <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
           <CookieConsent />
         </div>

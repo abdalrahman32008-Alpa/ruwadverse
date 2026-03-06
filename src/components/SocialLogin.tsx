@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Linkedin } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 // --- مكون تسجيل الدخول الاجتماعي ---
 // يعرض أزرار تسجيل الدخول عبر Google, Apple, LinkedIn
 export const SocialLogin = () => {
-  const [toast, setToast] = useState<string | null>(null);
+  const { signInWithGoogle, signInWithApple, signInWithLinkedIn } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSocialClick = (platform: string) => {
-    setToast(`سيتم تفعيل الدخول عبر ${platform} قريباً — سجل بالبريد الإلكتروني الآن`);
-    setTimeout(() => setToast(null), 3000);
+  const handleSocialClick = async (platform: 'Google' | 'Apple' | 'LinkedIn') => {
+    try {
+      if (platform === 'Google') await signInWithGoogle();
+      else if (platform === 'Apple') await signInWithApple();
+      else if (platform === 'LinkedIn') await signInWithLinkedIn();
+    } catch (err) {
+      setError(`حدث خطأ أثناء تسجيل الدخول عبر ${platform}`);
+      setTimeout(() => setError(null), 3000);
+    }
   };
 
   return (
@@ -52,17 +60,17 @@ export const SocialLogin = () => {
         </div>
       </div>
 
-      {/* Toast Notification */}
+      {/* Error Notification */}
       <AnimatePresence>
-        {toast && (
+        {error && (
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#1A1D21] border border-[#FFD700]/30 text-[#FFD700] px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 backdrop-blur-xl"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#1A1D21] border border-red-500/30 text-red-500 px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 backdrop-blur-xl"
           >
-            <span className="w-2 h-2 bg-[#FFD700] rounded-full animate-pulse"></span>
-            {toast}
+            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            {error}
           </motion.div>
         )}
       </AnimatePresence>
