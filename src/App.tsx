@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Logo } from './components/Logo';
 import { generateRaedResponse } from './services/raed';
-import { ArrowLeft, Check, ChevronDown, Lightbulb, Briefcase, Sparkles, Shield, TrendingUp, Menu, X, MessageSquare, Globe } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Lightbulb, Briefcase, Sparkles, Shield, TrendingUp, Menu, X, MessageSquare, Globe, Search } from 'lucide-react';
 import { ChatInterface } from './components/ChatInterface';
 import { Onboarding } from './components/Onboarding';
 import { FeedbackModal } from './components/FeedbackModal';
@@ -32,7 +32,11 @@ const AboutPage = React.lazy(() => import('./pages/AboutPage').then(module => ({
 const ContactPage = React.lazy(() => import('./pages/ContactPage').then(module => ({ default: module.ContactPage })));
 const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage').then(module => ({ default: module.PrivacyPage })));
 const TermsPage = React.lazy(() => import('./pages/TermsPage').then(module => ({ default: module.TermsPage })));
+const FeedPage = React.lazy(() => import('./pages/FeedPage').then(module => ({ default: module.FeedPage })));
 const MessagesPage = React.lazy(() => import('./pages/MessagesPage').then(module => ({ default: module.MessagesPage })));
+const AchievementsPage = React.lazy(() => import('./pages/AchievementsPage').then(module => ({ default: module.AchievementsPage })));
+const ProjectWorkspacePage = React.lazy(() => import('./pages/ProjectWorkspacePage').then(module => ({ default: module.ProjectWorkspacePage })));
+const MarketTrendsDashboard = React.lazy(() => import('./pages/MarketTrendsDashboard').then(module => ({ default: module.MarketTrendsDashboard })));
 const ReferralPage = React.lazy(() => import('./pages/ReferralPage').then(module => ({ default: module.ReferralPage })));
 const ContractPage = React.lazy(() => import('./pages/ContractPage').then(module => ({ default: module.ContractPage })));
 const SupportPage = React.lazy(() => import('./pages/SupportPage').then(module => ({ default: module.SupportPage })));
@@ -47,6 +51,7 @@ type Page = 'home' | 'register' | 'onboarding' | 'dashboard' | 'profile-skill' |
 import { KYCVerification } from './components/KYCVerification';
 import { SESSION_TIMEOUT_MS, WARNING_TIMEOUT_MS } from './utils/security';
 import { calculateUserLevel } from './utils/gamification';
+import { GlobalSearch } from './components/GlobalSearch';
 
 const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
@@ -81,7 +86,7 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-const Navbar = ({ onFeedback }: { onFeedback: () => void }) => {
+const Navbar = ({ onFeedback, onSearch }: { onFeedback: () => void, onSearch: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t, language, setLanguage, dir } = useLanguage();
   const { user, signOut } = useAuth();
@@ -106,8 +111,18 @@ const Navbar = ({ onFeedback }: { onFeedback: () => void }) => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-6 space-x-reverse rtl:space-x-reverse ltr:space-x-reverse">
               <button onClick={() => handleNavigate('/')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('home')}</button>
+              <button onClick={() => handleNavigate('/feed')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">المجتمع</button>
               <button onClick={() => handleNavigate('/marketplace')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">سوق الأفكار</button>
               <button onClick={() => handleNavigate('/support')} className="text-sm text-gray-400 hover:text-white transition-colors mx-3">{t('supportTitle')}</button>
+              
+              <button 
+                onClick={onSearch}
+                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-white transition-all text-xs mx-3"
+              >
+                <Search size={14} />
+                <span>بحث...</span>
+                <span className="text-[10px] bg-white/10 px-1 rounded ml-1 opacity-50">Ctrl+K</span>
+              </button>
               
               {user && (
                 <>
@@ -1140,12 +1155,24 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<UserType>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showSessionWarning, setShowSessionWarning] = useState(false);
   const { user, signOut } = useAuth();
   const sessionTimer = useRef<NodeJS.Timeout>();
   const warningTimer = useRef<NodeJS.Timeout>();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const resetSessionTimer = () => {
     if (sessionTimer.current) clearTimeout(sessionTimer.current);
@@ -1248,7 +1275,7 @@ function AppContent() {
 
       {!loading && (
         <div className="min-h-screen flex flex-col font-sans">
-          <Navbar onFeedback={() => setIsFeedbackOpen(true)} />
+          <Navbar onFeedback={() => setIsFeedbackOpen(true)} onSearch={() => setIsSearchOpen(true)} />
           
           <main className="flex-grow">
             <Suspense fallback={<PageLoader />}>
@@ -1298,6 +1325,46 @@ function AppContent() {
                     <ProtectedRoute>
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <Marketplace />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/feed" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <FeedPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/feed" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <FeedPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/achievements" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <AchievementsPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/workspace" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <ProjectWorkspacePage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/market-trends" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <MarketTrendsDashboard />
                       </motion.div>
                     </ProtectedRoute>
                   } />
@@ -1383,6 +1450,7 @@ function AppContent() {
 
           <Footer />
           <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
+          <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
           <CookieConsent />
         </div>
       )}

@@ -8,6 +8,16 @@
   --color-linear-surface: #141517;
   --color-linear-border: rgba(255, 255, 255, 0.08);
   --color-linear-text-secondary: #8A8F98;
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
 }
 
 body {

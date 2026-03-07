@@ -13,23 +13,20 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   width, 
   height 
 }) => {
-  const baseClasses = 'animate-pulse bg-white/10 rounded';
+  const baseClasses = 'relative overflow-hidden bg-[#1f2937] rounded-xl';
   const variantClasses = {
     text: 'h-4 w-full rounded',
     circular: 'rounded-full',
     rectangular: 'rounded-md',
   };
 
-  const style = {
-    width,
-    height,
-  };
-
   return (
     <div 
       className={`${baseClasses} ${variantClasses[variant]} ${className}`} 
-      style={style}
-    />
+      style={{ width, height }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer" />
+    </div>
   );
 };
 
