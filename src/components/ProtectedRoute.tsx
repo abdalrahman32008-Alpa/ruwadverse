@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -9,12 +10,25 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
+    const checkOnboarding = async () => {
+      if (!loading && user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', user.id)
+          .single();
+
+        if (!profile?.onboarding_completed && location.pathname !== '/onboarding') {
+          navigate('/onboarding', { replace: true });
+        }
+      }
+    };
+    
     if (!loading && !user) {
       toast.error('يجب تسجيل الدخول أولاً للوصول لهذه الميزة');
-      const timer = setTimeout(() => {
-        navigate('/login', { state: { from: location.pathname }, replace: true });
-      }, 2000);
-      return () => clearTimeout(timer);
+      navigate('/auth', { state: { from: location.pathname }, replace: true });
+    } else if (user) {
+      checkOnboarding();
     }
   }, [user, loading, navigate, location]);
 
