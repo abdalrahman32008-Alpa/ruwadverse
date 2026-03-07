@@ -37,6 +37,8 @@ const MessagesPage = React.lazy(() => import('./pages/MessagesPage').then(module
 const AchievementsPage = React.lazy(() => import('./pages/AchievementsPage').then(module => ({ default: module.AchievementsPage })));
 const ProjectWorkspacePage = React.lazy(() => import('./pages/ProjectWorkspacePage').then(module => ({ default: module.ProjectWorkspacePage })));
 const MarketTrendsDashboard = React.lazy(() => import('./pages/MarketTrendsDashboard').then(module => ({ default: module.MarketTrendsDashboard })));
+const SettingsPage = React.lazy(() => import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage })));
+const IdeaDetailPage = React.lazy(() => import('./pages/IdeaDetailPage').then(module => ({ default: module.IdeaDetailPage })));
 const ReferralPage = React.lazy(() => import('./pages/ReferralPage').then(module => ({ default: module.ReferralPage })));
 const ContractPage = React.lazy(() => import('./pages/ContractPage').then(module => ({ default: module.ContractPage })));
 const SupportPage = React.lazy(() => import('./pages/SupportPage').then(module => ({ default: module.SupportPage })));
@@ -52,6 +54,7 @@ import { KYCVerification } from './components/KYCVerification';
 import { SESSION_TIMEOUT_MS, WARNING_TIMEOUT_MS } from './utils/security';
 import { calculateUserLevel } from './utils/gamification';
 import { GlobalSearch } from './components/GlobalSearch';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
@@ -1145,9 +1148,11 @@ const PageLoader = () => (
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -1365,6 +1370,22 @@ function AppContent() {
                     <ProtectedRoute>
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <MarketTrendsDashboard />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/settings" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <SettingsPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  } />
+
+                  <Route path="/idea/:id" element={
+                    <ProtectedRoute>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <IdeaDetailPage />
                       </motion.div>
                     </ProtectedRoute>
                   } />
