@@ -1,47 +1,53 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
-    const checkOnboarding = async () => {
-      if (!loading && user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_completed')
-          .eq('id', user.id)
-          .single();
-
-        if (!profile?.onboarding_completed && location.pathname !== '/onboarding') {
-          navigate('/onboarding', { replace: true });
-        }
-      }
-    };
-    
     if (!loading && !user) {
-      toast.error('يجب تسجيل الدخول أولاً للوصول لهذه الميزة');
-      navigate('/auth', { state: { from: location.pathname }, replace: true });
-    } else if (user) {
-      checkOnboarding();
+      sessionStorage.setItem('intended_url', location.pathname);
+      toast.error(t('requiredLogin'), {
+        duration: 2000,
+      });
+      
+      const timer = setTimeout(() => {
+        setShouldRedirect(true);
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
-  }, [user, loading, navigate, location]);
+  }, [loading, user, location, t]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0C0E] flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1117]">
+        <div className="w-16 h-16 border-4 border-[#FFD700]/20 border-t-[#FFD700] rounded-full animate-spin" />
       </div>
     );
   }
 
+  if (shouldRedirect) {
+    return <Navigate to="/auth" replace />;
+  }
+
   if (!user) {
-    return null; // Will redirect in useEffect
+    // Return null or a loading state while waiting for the redirect timer
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1117]">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-white mb-2">{t('loginToContinue')}</h2>
+          <p className="text-gray-400">{t('requiredLogin')}</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

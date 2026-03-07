@@ -25,10 +25,10 @@ const TABS = [
   { id: 'achievements', label: 'الإنجازات', icon: Award },
 ];
 
-export const ProfilePage = () => {
+export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('posts');
-  const isOwnProfile = true; // Mock check
+  const isOwnProfile = isMe || id === 'me'; // Mock check or use auth context
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-20">
