@@ -892,7 +892,7 @@ function AppContent() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 right-8 z-50 bg-[#141517] border border-red-500/20 p-6 rounded-2xl shadow-2xl max-w-sm"
+            className="fixed bottom-8 right-8 z-50 bg-[#141517] border border-red-500/20 p-6 rounded-2xl shadow-2xl w-[calc(100vw-2rem)] max-w-sm"
           >
             <h4 className="text-lg font-bold text-white mb-2">انتهت جلستك</h4>
             <p className="text-gray-400 text-sm mb-4">هل تريد البقاء متصلاً؟ سيتم تسجيل خروجك خلال دقيقة.</p>

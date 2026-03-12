@@ -27,15 +27,18 @@ export const SiteAuditor = () => {
   // Helper to check if element is visible
   const isVisible = (el: Element) => {
     const style = window.getComputedStyle(el);
+    // Ignore the auditor's own UI
+    if (el.closest('#site-auditor-container')) return false;
     return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0' && el.getBoundingClientRect().width > 0;
   };
 
   // Helper to check if elements actually overlap visually
   const isOverlapping = (rect1: DOMRect, rect2: DOMRect) => {
-    return !(rect1.right <= rect2.left || 
-             rect1.left >= rect2.right || 
-             rect1.bottom <= rect2.top || 
-             rect1.top >= rect2.bottom);
+    const threshold = 2; // Ignore subpixel overlaps and 1px borders
+    return !(rect1.right <= rect2.left + threshold || 
+             rect1.left >= rect2.right - threshold || 
+             rect1.bottom <= rect2.top + threshold || 
+             rect1.top >= rect2.bottom - threshold);
   };
 
   const performScan = () => {
@@ -44,7 +47,7 @@ export const SiteAuditor = () => {
     
     // 1. Check for text overflow
     allElements.forEach((el) => {
-      if (el.scrollWidth > el.clientWidth && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE') {
+      if (el.scrollWidth > el.clientWidth + 2 && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE') {
         const overflowX = window.getComputedStyle(el).overflowX;
         if (overflowX !== 'auto' && overflowX !== 'scroll' && overflowX !== 'hidden') {
           newIssues.push({
@@ -280,7 +283,7 @@ export const SiteAuditor = () => {
   };
 
   return (
-    <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-[9999]">
+    <div id="site-auditor-container" ref={constraintsRef} className="fixed inset-0 pointer-events-none z-[9999]">
       <motion.div
         drag
         dragConstraints={constraintsRef}
