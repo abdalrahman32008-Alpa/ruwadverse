@@ -82,11 +82,10 @@ export const RAEDAgent = () => {
               opacity: 1, 
               scale: 1, 
               y: 0,
-              height: isMinimized ? '64px' : '600px',
-              width: '400px'
+              height: isMinimized ? '64px' : '600px'
             }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-[#141517] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col mb-4"
+            className="w-[calc(100vw-3rem)] md:w-[400px] bg-[#141517] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col mb-4"
           >
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-b border-white/5 flex items-center justify-between">

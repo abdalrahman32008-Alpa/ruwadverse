@@ -73,7 +73,7 @@ export const SocialLogin = () => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#1A1D21] border border-red-500/30 text-red-500 px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 backdrop-blur-xl"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100vw-2rem)] max-w-md bg-[#1A1D21] border border-red-500/30 text-red-500 px-6 py-3 rounded-full shadow-2xl z-50 flex items-center justify-center gap-3 backdrop-blur-xl text-center text-sm"
           >
             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
             {error}

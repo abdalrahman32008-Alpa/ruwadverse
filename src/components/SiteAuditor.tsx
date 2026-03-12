@@ -142,7 +142,7 @@ export const SiteAuditor = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 z-50 bg-red-500/10 hover:bg-red-500/20 text-red-500 p-3 rounded-full border border-red-500/20 shadow-lg backdrop-blur-sm transition-all group"
+        className="fixed bottom-4 right-4 z-50 bg-red-500/10 hover:bg-red-500/20 text-red-500 p-3 rounded-full border border-red-500/20 shadow-lg backdrop-blur-sm transition-all group"
         title="AI Site Auditor"
       >
         <Bug size={24} className="group-hover:scale-110 transition-transform" />
@@ -159,7 +159,7 @@ export const SiteAuditor = () => {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className="fixed bottom-20 left-4 z-50 w-96 bg-[#0B0C0E] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+            className="fixed bottom-20 right-4 z-50 w-[calc(100vw-2rem)] sm:w-96 max-w-full bg-[#0B0C0E] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
           >
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-[#141517]">
               <div className="flex items-center gap-2">
