@@ -83,15 +83,6 @@ import { Toaster } from 'react-hot-toast';
 
 import { useUserTracker } from './hooks/useUserTracker';
 
-const SupabaseWarning = () => {
-  if (isSupabaseConfigured) return null;
-  return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] bg-red-600 text-white px-4 py-2 text-center text-sm font-medium shadow-lg break-words">
-      ⚠️ تنبيه: متغيرات Supabase مفقودة. يرجى إضافتها في لوحة التحكم (Secrets) ليعمل نظام تسجيل الدخول.
-    </div>
-  );
-};
-
 const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(onComplete, 2500);
@@ -249,12 +240,12 @@ const RegisterPage = ({ onSelectType }: { onSelectType: (type: UserType) => void
 };
 
 const Dashboard = ({ userType }: { userType: UserType }) => {
+  const { user } = useAuth();
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'matches' | 'performance'>('overview');
   
-  // Mock user points for demo
-  const userPoints = 150; 
+  const userPoints = user?.user_metadata?.reputation_points || 0; 
   const { level, progress, nextLevelPoints } = calculateUserLevel(userPoints);
 
   useEffect(() => {
@@ -300,10 +291,14 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FFD700] to-transparent opacity-50" />
             <div className="w-24 h-24 mx-auto bg-[#141517] border border-white/10 rounded-full mb-4 flex items-center justify-center text-3xl shadow-xl relative z-10">
               <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/5 to-transparent" />
-              👤
+              {user?.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover rounded-full" />
+              ) : (
+                '👤'
+              )}
             </div>
             <h2 className="text-xl font-bold mb-1">
-              {userType === 'idea' ? 'Ahmed Mohamed' : userType === 'skill' ? 'Sarah Ali' : 'Khalid Abdullah'}
+              {user?.user_metadata?.full_name || (userType === 'idea' ? 'مؤسس طموح' : userType === 'skill' ? 'موهبة واعدة' : 'مستثمر ذكي')}
             </h2>
             <p className="text-[#8A8F98] text-sm mb-4 flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#FFD700]" />
@@ -352,18 +347,24 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
             </div>
           </div>
 
-          {/* Endorsements Mock */}
+          {/* Endorsements */}
           <div className="linear-card p-6 rounded-2xl">
             <h3 className="font-bold text-sm mb-4 text-white">{t('mySkills')}</h3>
             <div className="space-y-3">
-              {['Strategic Planning', 'Product Management', 'Leadership'].map((skill, idx) => (
-                <div key={idx} className="flex justify-between items-center text-sm text-gray-400">
-                  <span>{skill}</span>
-                  <button className="text-[#FFD700] hover:bg-[#FFD700]/10 px-2 py-0.5 rounded text-xs border border-[#FFD700]/20 transition-colors">
-                    +1 {t('endorse')}
-                  </button>
-                </div>
-              ))}
+              {(() => {
+                const skills = user?.user_metadata?.skills || user?.user_metadata?.onboarding_data?.skills || [];
+                if (skills.length === 0) {
+                  return <div className="text-sm text-gray-500 text-center py-4">لم تقم بإضافة مهارات بعد</div>;
+                }
+                return skills.map((skill: string, idx: number) => (
+                  <div key={idx} className="flex justify-between items-center text-sm text-gray-400">
+                    <span>{skill}</span>
+                    <button className="text-[#FFD700] hover:bg-[#FFD700]/10 px-2 py-0.5 rounded text-xs border border-[#FFD700]/20 transition-colors">
+                      +1 {t('endorse')}
+                    </button>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
 
@@ -455,14 +456,14 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
                       <Eye size={14} className="text-red-500" />
                       <span className="text-xs text-gray-300">Risk Oracle Alerts</span>
                     </div>
-                    <span className="text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded border border-red-500/20">2 High Risk</span>
+                    <span className="text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded border border-red-500/20">0 Alerts</span>
                   </div>
                   <div className="bg-black/40 border border-white/5 p-3 rounded-xl flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Network size={14} className="text-cyan-400" />
                       <span className="text-xs text-gray-300">Quantum Cap Table</span>
                     </div>
-                    <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20">Updated</span>
+                    <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20">Ready</span>
                   </div>
                 </div>
               </div>
@@ -883,7 +884,6 @@ function AppContent() {
 
   return (
     <>
-      <SupabaseWarning />
       <Analytics />
       <AnimatePresence>
         {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
@@ -1189,7 +1189,6 @@ function AppContent() {
               </AnimatePresence>
             </Suspense>
             {user && <RAEDAgent />}
-            {user && <EnthusiasmEngine role={userType as any} />}
             </main>
           </div>
 

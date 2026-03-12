@@ -89,7 +89,7 @@ export const Navbar = ({ onFeedback, onSearch, onToggleSidebar }: NavbarProps) =
                     <button onClick={() => handleNavigate('/profile/me')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700] flex items-center gap-2">
                       <User size={14} /> {t('myProfile')}
                     </button>
-                    <button onClick={() => handleNavigate('/dashboard')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700] flex items-center gap-2">
+                    <button onClick={() => handleNavigate(user?.user_metadata?.user_type === 'idea' ? '/founder-dashboard' : '/dashboard')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700] flex items-center gap-2">
                       <FileText size={14} /> {t('dashboard')}
                     </button>
                     <button onClick={() => handleNavigate('/messages')} className="block w-full text-start px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-[#FFD700] flex items-center gap-2">
@@ -220,7 +220,7 @@ export const Navbar = ({ onFeedback, onSearch, onToggleSidebar }: NavbarProps) =
                   <button onClick={() => handleNavigate('/messages')} className="text-start text-xl font-bold text-white hover:text-[#FFD700] transition-colors flex items-center gap-3">
                     <MessageSquare size={20} /> {t('messages')}
                   </button>
-                  <button onClick={() => handleNavigate('/dashboard')} className="text-start text-xl font-bold text-white hover:text-[#FFD700] transition-colors flex items-center gap-3">
+                  <button onClick={() => handleNavigate(user?.user_metadata?.user_type === 'idea' ? '/founder-dashboard' : '/dashboard')} className="text-start text-xl font-bold text-white hover:text-[#FFD700] transition-colors flex items-center gap-3">
                     <FileText size={20} /> {t('dashboard')}
                   </button>
                   <button onClick={() => handleNavigate('/referral')} className="text-start text-xl font-bold text-white hover:text-[#FFD700] transition-colors flex items-center gap-3">

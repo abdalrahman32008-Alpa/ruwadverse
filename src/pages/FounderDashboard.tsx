@@ -97,7 +97,7 @@ export const FounderDashboard = () => {
 
         // Calculate stats
         setStats({
-            views: Math.floor(Math.random() * 1000) + 100, // Mock views for now
+            views: 0, // No views column yet, so default to 0 instead of fake data
             requests: contractsCount,
             conversion: contractsCount > 0 ? Math.floor((signedContractsCount / contractsCount) * 100) : 0,
             investors: signedContractsCount

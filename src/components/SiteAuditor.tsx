@@ -82,6 +82,27 @@ export const SiteAuditor = () => {
               // Ignore if one of them is pointer-events: none
               if (style1.pointerEvents === 'none' || style2.pointerEvents === 'none') continue;
 
+              // Ignore intentional overlaps: e.g., an absolute button inside a relative container with an input
+              if (style1.position === 'absolute' || style2.position === 'absolute') {
+                const parent1 = el1.parentElement;
+                const parent2 = el2.parentElement;
+                if (parent1 === parent2 || parent1?.contains(el2) || parent2?.contains(el1)) {
+                  continue; // Likely an intentional overlay (like a send button inside a chat input)
+                }
+              }
+
+              // Ignore if they are both in the same flex/grid container and just touching (handled by threshold, but let's be safe)
+              const commonParent = el1.parentElement === el2.parentElement ? el1.parentElement : null;
+              if (commonParent) {
+                const parentStyle = window.getComputedStyle(commonParent);
+                if (parentStyle.display === 'flex' || parentStyle.display === 'grid') {
+                  // If they are flex/grid items, minor overlaps are usually just layout quirks
+                  const overlapX = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
+                  const overlapY = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
+                  if (overlapX < 10 || overlapY < 10) continue;
+                }
+              }
+
               const context = `(Z-index: ${style1.zIndex} vs ${style2.zIndex}, Position: ${style1.position} vs ${style2.position})`;
               
               newIssues.push({
@@ -109,13 +130,32 @@ export const SiteAuditor = () => {
       });
     }
 
-    // 4. Check for empty buttons/links
+    // 4. Check for empty buttons/links/inputs
     interactables.forEach((el) => {
-      const text = (el as HTMLElement).innerText?.trim();
+      const tagName = el.tagName.toLowerCase();
       const ariaLabel = el.getAttribute('aria-label');
-      const hasChildren = el.children.length > 0;
+      const title = el.getAttribute('title');
       
-      if (!text && !ariaLabel && !hasChildren) {
+      let isEmpty = false;
+      
+      if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
+        const inputEl = el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        const hasLabelWrapper = el.closest('label') !== null;
+        const hasIdAndLabel = el.id && document.querySelector(`label[for="${el.id}"]`) !== null;
+        
+        if (tagName === 'input' && ((inputEl as HTMLInputElement).type === 'checkbox' || (inputEl as HTMLInputElement).type === 'radio')) {
+            isEmpty = !hasLabelWrapper && !hasIdAndLabel && !ariaLabel && !title;
+        } else {
+            const placeholder = (inputEl as HTMLInputElement).placeholder || '';
+            isEmpty = !inputEl.value && !placeholder && !ariaLabel && !title && !hasLabelWrapper && !hasIdAndLabel;
+        }
+      } else {
+        const text = (el as HTMLElement).innerText?.trim();
+        const hasChildren = el.children.length > 0;
+        isEmpty = !text && !ariaLabel && !title && !hasChildren;
+      }
+      
+      if (isEmpty) {
          newIssues.push({
           id: `empty_${Math.random().toString(36).substring(7)}`,
           type: 'empty_interactive',
@@ -126,6 +166,48 @@ export const SiteAuditor = () => {
         });
       }
     });
+
+    // 5. Check for mock/fake data
+    const textNodes = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    let node;
+    const mockPatterns = [
+      /lorem ipsum/i,
+      /john doe/i,
+      /jane doe/i,
+      /test@test\.com/i,
+      /123456789/i,
+      /mock data/i,
+      /fake data/i,
+      /user name/i,
+      /اسم المستخدم/i,
+      /user@example\.com/i,
+      /example\.com/i
+    ];
+    
+    const foundMocks = new Set<string>();
+    
+    while ((node = textNodes.nextNode())) {
+      // Ignore text inside the auditor itself
+      if (node.parentElement?.closest('#site-auditor-container')) continue;
+      
+      const text = node.nodeValue?.trim() || '';
+      if (text.length > 3) {
+        for (const pattern of mockPatterns) {
+          if (pattern.test(text)) {
+            foundMocks.add(pattern.toString());
+            newIssues.push({
+              id: `mock_${Math.random().toString(36).substring(7)}`,
+              type: 'mock_data',
+              element: node.parentElement?.tagName.toLowerCase() || 'text',
+              message: `تم العثور على بيانات وهمية (Mock Data) في الصفحة: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
+              severity: 'medium',
+              status: 'open'
+            });
+            break; // Move to next node
+          }
+        }
+      }
+    }
 
     return newIssues;
   };
@@ -295,7 +377,7 @@ export const SiteAuditor = () => {
         <button
           onClick={() => setIsOpen(true)}
           className="bg-red-500/10 hover:bg-red-500/20 text-red-500 p-3 rounded-full border border-red-500/20 shadow-lg backdrop-blur-sm transition-all group flex items-center justify-center relative"
-          title="المدقق الذكي (اسحب للتحريك)"
+          title="مساعد المطور (اسحب للتحريك)"
         >
           <Bug size={24} className="group-hover:scale-110 transition-transform" />
           <Move size={12} className="absolute -top-1 -left-1 text-red-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -319,7 +401,7 @@ export const SiteAuditor = () => {
               <div className="flex items-center gap-2">
                 <BrainCircuit className="text-red-400" size={20} />
                 <div>
-                  <h3 className="font-bold text-white text-sm">المدقق الذكي (AI Auditor)</h3>
+                  <h3 className="font-bold text-white text-sm">مساعد المطور (Dev Assistant)</h3>
                   <p className="text-[10px] text-gray-400">فحص شامل للواجهة والأداء</p>
                 </div>
               </div>
@@ -330,6 +412,7 @@ export const SiteAuditor = () => {
                     <input 
                       type="checkbox" 
                       className="sr-only" 
+                      aria-label="تفعيل الفحص المستمر"
                       checked={isContinuous} 
                       onChange={(e) => setIsContinuous(e.target.checked)} 
                     />

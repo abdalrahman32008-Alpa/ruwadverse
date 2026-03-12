@@ -45,8 +45,8 @@ export const MessagesPage = () => {
           .from('messages')
           .select(`
             *,
-            sender:sender_id (id, name, avatar_url),
-            receiver:receiver_id (id, name, avatar_url)
+            sender:sender_id (id, full_name, avatar_url),
+            receiver:receiver_id (id, full_name, avatar_url)
           `)
           .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
           .order('created_at', { ascending: true });
@@ -95,8 +95,8 @@ export const MessagesPage = () => {
                         id: partnerId,
                         user: {
                             id: partner.id,
-                            name: partner.name || 'مستخدم',
-                            avatar: partner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partner.name || 'User')}&background=141517&color=FFD700`,
+                            name: partner.full_name || 'مستخدم',
+                            avatar: partner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partner.full_name || 'User')}&background=141517&color=FFD700`,
                             status: 'offline' // Placeholder
                         },
                         lastMessage: msg.text,

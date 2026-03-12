@@ -421,7 +421,7 @@ export const translations = {
     contributionTracker: "تتبع المساهمات",
     equityVisualizer: "مصور الحصص",
     milestoneRewards: "مكافآت الإنجاز",
-    dueDiligence: "الفحص النافي للجهالة",
+    dueDiligence: "تقرير التقييم الشامل",
     transparencyScore: "درجة الشفافية",
     founderEnthusiasm: "حماس المؤسس",
     investorConfidence: "ثقة المستثمر",

@@ -30,7 +30,6 @@ export const ExploreSection = ({ type }: ExploreProps) => {
           const { data, error } = await supabase
             .from('ideas')
             .select('*, owner:user_id(full_name, avatar_url)')
-            .eq('status', 'published')
             .order('created_at', { ascending: false })
             .limit(10);
             
