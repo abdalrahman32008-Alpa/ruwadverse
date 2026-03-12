@@ -1,28 +1,40 @@
 import React, { useEffect } from 'react';
 
 // --- مكون التحليلات ---
-// يضيف أكواد التتبع لـ Vercel Analytics, Hotjar, Google Search Console
+// يضيف أكواد التتبع لـ Google Analytics و ContentSquare
 export const Analytics = () => {
   useEffect(() => {
-    // Vercel Analytics (Mock)
-    console.log('Vercel Analytics initialized');
+    // 1. Google Analytics 4
+    const gaId = "G-DN62YT2J4Z";
+    
+    // Load gtag.js
+    const scriptGA = document.createElement('script');
+    scriptGA.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+    scriptGA.async = true;
+    document.head.appendChild(scriptGA);
+    
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){window.dataLayer.push(arguments);}
+    window.gtag = gtag; // Make gtag available globally
+    gtag('js', new Date());
+    gtag('config', gaId);
 
-    // Hotjar (Mock)
-    // In a real app, you would inject the script here
-    // (function(h,o,t,j,a,r){
-    //     h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-    //     h._hjSettings={hjid:YOUR_HOTJAR_ID,hjsv:6};
-    //     a=o.getElementsByTagName('head')[0];
-    //     r=o.createElement('script');r.async=1;
-    //     r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-    //     a.appendChild(r);
-    // })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-    console.log('Hotjar script injected (mock)');
-
-    // Google Search Console (Mock)
-    // Typically handled via meta tag in index.html or DNS record
-    console.log('Google Search Console verification ready');
+    // 2. ContentSquare
+    const scriptCS = document.createElement('script');
+    scriptCS.src = "https://t.contentsquare.net/uxa/383667b318c39.js";
+    scriptCS.async = true;
+    document.head.appendChild(scriptCS);
+    
+    console.log('Analytics initialized: Google Analytics and ContentSquare');
   }, []);
 
   return null; // This component doesn't render anything visible
 };
+
+// Add type definition for gtag
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}

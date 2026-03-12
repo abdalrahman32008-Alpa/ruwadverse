@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown';
 
 interface AuditIssue {
   id: string;
-  type: 'ui_overlap' | 'text_overflow' | 'console_error' | 'accessibility' | 'empty_interactive';
+  type: 'ui_overlap' | 'text_overflow' | 'console_error' | 'accessibility' | 'empty_interactive' | 'mock_data';
   element?: string;
   message: string;
   severity: 'low' | 'medium' | 'high';
