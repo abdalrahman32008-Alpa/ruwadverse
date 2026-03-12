@@ -129,6 +129,34 @@ export const RAEDAgentService = {
     }
   },
 
+  async analyzeUIIssue(issueDetails: string) {
+    try {
+      const response = await genAI.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: [
+          { 
+            role: 'user', 
+            parts: [{ 
+              text: `أنت خبير في UI/UX وتطوير الويب (React/Tailwind). 
+قام نظام التدقيق باكتشاف مشكلة في الواجهة.
+تفاصيل المشكلة: ${issueDetails}
+
+يرجى تقديم رد منظم ومختصر يحتوي على:
+1. 🔍 **السبب الجذري:** (لماذا حدثت هذه المشكلة؟)
+2. 💻 **الحل البرمجي:** (أكواد Tailwind أو React الدقيقة لحلها)
+3. ⚠️ **تحذير من حلول سطحية:** (مثلاً: إذا كانت المشكلة تداخل عناصر ثابتة Fixed، اشرح لماذا مجرد تحريك العنصر لليمين/اليسار قد يسبب تداخلاً مع عناصر أخرى كشريط التمرير أو أزرار أخرى، وما هو الحل الجذري كاستخدام Drag أو Z-index أو Layout مرن).
+4. 🔄 **عناصر قد تتأثر:** (ما الذي يجب الحذر منه عند تطبيق الحل؟)` 
+            }] 
+          }
+        ]
+      });
+      return response.text;
+    } catch (error) {
+      console.error('AI Analysis Error:', error);
+      return "عذراً، تعذر تحليل المشكلة بواسطة الذكاء الاصطناعي حالياً. يرجى المحاولة لاحقاً.";
+    }
+  },
+
   async chat(message: string, history: any[] = [], userId: string) {
     try {
       // جلب سياق المستخدم
