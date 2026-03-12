@@ -22,10 +22,109 @@ export const SiteAuditor = () => {
   const [copied, setCopied] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
 
+  const [isContinuous, setIsContinuous] = useState(false);
+
   // Helper to check if element is visible
   const isVisible = (el: Element) => {
     const style = window.getComputedStyle(el);
     return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0' && el.getBoundingClientRect().width > 0;
+  };
+
+  // Helper to check if elements actually overlap visually
+  const isOverlapping = (rect1: DOMRect, rect2: DOMRect) => {
+    return !(rect1.right <= rect2.left || 
+             rect1.left >= rect2.right || 
+             rect1.bottom <= rect2.top || 
+             rect1.top >= rect2.bottom);
+  };
+
+  const performScan = () => {
+    const newIssues: AuditIssue[] = [];
+    const allElements = Array.from(document.querySelectorAll('*')).filter(isVisible);
+    
+    // 1. Check for text overflow
+    allElements.forEach((el) => {
+      if (el.scrollWidth > el.clientWidth && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE') {
+        const overflowX = window.getComputedStyle(el).overflowX;
+        if (overflowX !== 'auto' && overflowX !== 'scroll' && overflowX !== 'hidden') {
+          newIssues.push({
+            id: `overflow_${Math.random().toString(36).substring(7)}`,
+            type: 'text_overflow',
+            element: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : '') + (el.className && typeof el.className === 'string' ? `.${el.className.split(' ')[0]}` : ''),
+            message: 'نص أو محتوى يخرج عن إطار الحاوية (Text Overflow).',
+            severity: 'medium',
+            status: 'open'
+          });
+        }
+      }
+    });
+
+    // 2. Comprehensive Overlap Check (All interactables)
+    const interactables = Array.from(document.querySelectorAll('button, a, input, select, textarea, [role="button"]')).filter(isVisible);
+    
+    for (let i = 0; i < interactables.length; i++) {
+      for (let j = i + 1; j < interactables.length; j++) {
+        const el1 = interactables[i];
+        const el2 = interactables[j];
+        const rect1 = el1.getBoundingClientRect();
+        const rect2 = el2.getBoundingClientRect();
+        
+        // Check intersection
+        if (isOverlapping(rect1, rect2)) {
+           // If one is not a child of another
+           if (!el1.contains(el2) && !el2.contains(el1)) {
+              const style1 = window.getComputedStyle(el1);
+              const style2 = window.getComputedStyle(el2);
+              
+              // Ignore if one of them is pointer-events: none
+              if (style1.pointerEvents === 'none' || style2.pointerEvents === 'none') continue;
+
+              const context = `(Z-index: ${style1.zIndex} vs ${style2.zIndex}, Position: ${style1.position} vs ${style2.position})`;
+              
+              newIssues.push({
+                id: `overlap_${Math.random().toString(36).substring(7)}`,
+                type: 'ui_overlap',
+                element: `${el1.tagName.toLowerCase()} vs ${el2.tagName.toLowerCase()}`,
+                message: `تداخل بين عنصرين تفاعليين مما قد يمنع النقر. ${context}`,
+                severity: 'high',
+                status: 'open'
+              });
+           }
+        }
+      }
+    }
+
+    // 3. Check for missing alt tags on images
+    const images = Array.from(document.querySelectorAll('img:not([alt]), img[alt=""]')).filter(isVisible);
+    if (images.length > 0) {
+      newIssues.push({
+        id: `a11y_${Math.random().toString(36).substring(7)}`,
+        type: 'accessibility',
+        message: `تم العثور على ${images.length} صورة بدون نص بديل (Alt tag).`,
+        severity: 'low',
+        status: 'open'
+      });
+    }
+
+    // 4. Check for empty buttons/links
+    interactables.forEach((el) => {
+      const text = (el as HTMLElement).innerText?.trim();
+      const ariaLabel = el.getAttribute('aria-label');
+      const hasChildren = el.children.length > 0;
+      
+      if (!text && !ariaLabel && !hasChildren) {
+         newIssues.push({
+          id: `empty_${Math.random().toString(36).substring(7)}`,
+          type: 'empty_interactive',
+          element: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : ''),
+          message: `عنصر تفاعلي فارغ ولا يحتوي على نص أو Aria-label.`,
+          severity: 'medium',
+          status: 'open'
+        });
+      }
+    });
+
+    return newIssues;
   };
 
   const scanSite = () => {
@@ -33,93 +132,8 @@ export const SiteAuditor = () => {
     setIssues([]); // Reset issues
     
     setTimeout(() => {
-      const newIssues: AuditIssue[] = [];
-      const allElements = Array.from(document.querySelectorAll('*')).filter(isVisible);
+      const newIssues = performScan();
       
-      // 1. Check for text overflow
-      allElements.forEach((el) => {
-        if (el.scrollWidth > el.clientWidth && el.tagName !== 'SCRIPT' && el.tagName !== 'STYLE') {
-          const overflowX = window.getComputedStyle(el).overflowX;
-          if (overflowX !== 'auto' && overflowX !== 'scroll' && overflowX !== 'hidden') {
-            newIssues.push({
-              id: `overflow_${Math.random().toString(36).substring(7)}`,
-              type: 'text_overflow',
-              element: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : '') + (el.className && typeof el.className === 'string' ? `.${el.className.split(' ')[0]}` : ''),
-              message: 'نص أو محتوى يخرج عن إطار الحاوية (Text Overflow).',
-              severity: 'medium',
-              status: 'open'
-            });
-          }
-        }
-      });
-
-      // 2. Comprehensive Overlap Check (All interactables)
-      const interactables = Array.from(document.querySelectorAll('button, a, input, select, textarea, [role="button"]')).filter(isVisible);
-      
-      for (let i = 0; i < interactables.length; i++) {
-        for (let j = i + 1; j < interactables.length; j++) {
-          const el1 = interactables[i];
-          const el2 = interactables[j];
-          const rect1 = el1.getBoundingClientRect();
-          const rect2 = el2.getBoundingClientRect();
-          
-          // Check intersection
-          if (
-            !(rect1.right < rect2.left || 
-              rect1.left > rect2.right || 
-              rect1.bottom < rect2.top || 
-              rect1.top > rect2.bottom)
-          ) {
-             // If one is not a child of another
-             if (!el1.contains(el2) && !el2.contains(el1)) {
-                // Check if they are fixed or absolute
-                const style1 = window.getComputedStyle(el1);
-                const style2 = window.getComputedStyle(el2);
-                const context = `(Z-index: ${style1.zIndex} vs ${style2.zIndex}, Position: ${style1.position} vs ${style2.position})`;
-                
-                newIssues.push({
-                  id: `overlap_${Math.random().toString(36).substring(7)}`,
-                  type: 'ui_overlap',
-                  element: `${el1.tagName.toLowerCase()} vs ${el2.tagName.toLowerCase()}`,
-                  message: `تداخل بين عنصرين تفاعليين مما قد يمنع النقر. ${context}`,
-                  severity: 'high',
-                  status: 'open'
-                });
-             }
-          }
-        }
-      }
-
-      // 3. Check for missing alt tags on images
-      const images = Array.from(document.querySelectorAll('img:not([alt]), img[alt=""]')).filter(isVisible);
-      if (images.length > 0) {
-        newIssues.push({
-          id: `a11y_${Math.random().toString(36).substring(7)}`,
-          type: 'accessibility',
-          message: `تم العثور على ${images.length} صورة بدون نص بديل (Alt tag).`,
-          severity: 'low',
-          status: 'open'
-        });
-      }
-
-      // 4. Check for empty buttons/links
-      interactables.forEach((el) => {
-        const text = (el as HTMLElement).innerText?.trim();
-        const ariaLabel = el.getAttribute('aria-label');
-        const hasChildren = el.children.length > 0;
-        
-        if (!text && !ariaLabel && !hasChildren) {
-           newIssues.push({
-            id: `empty_${Math.random().toString(36).substring(7)}`,
-            type: 'empty_interactive',
-            element: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : ''),
-            message: `عنصر تفاعلي فارغ ولا يحتوي على نص أو Aria-label.`,
-            severity: 'medium',
-            status: 'open'
-          });
-        }
-      });
-
       // Deduplicate issues based on type and message
       const uniqueIssues = newIssues.filter((issue, index, self) =>
         index === self.findIndex((t) => (
@@ -131,6 +145,41 @@ export const SiteAuditor = () => {
       setIsScanning(false);
     }, 2000);
   };
+
+  useEffect(() => {
+    let observer: MutationObserver;
+    let timeoutId: NodeJS.Timeout;
+
+    if (isContinuous) {
+      observer = new MutationObserver(() => {
+        // Debounce the scan to avoid performance issues
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          const newIssues = performScan();
+          setIssues(prev => {
+            const combined = [...prev, ...newIssues];
+            return combined.filter((issue, index, self) =>
+              index === self.findIndex((t) => (
+                t.type === issue.type && t.message === issue.message
+              ))
+            );
+          });
+        }, 1000);
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
+    }
+
+    return () => {
+      if (observer) observer.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [isContinuous]);
 
   useEffect(() => {
     // Catch console errors
@@ -200,9 +249,13 @@ export const SiteAuditor = () => {
            for (let j = i + 1; j < interactables.length; j++) {
              const rect1 = interactables[i].getBoundingClientRect();
              const rect2 = interactables[j].getBoundingClientRect();
-             if (!(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom)) {
+             if (isOverlapping(rect1, rect2)) {
                if (!interactables[i].contains(interactables[j]) && !interactables[j].contains(interactables[i])) {
-                 overlapFound = true; break;
+                 const style1 = window.getComputedStyle(interactables[i]);
+                 const style2 = window.getComputedStyle(interactables[j]);
+                 if (style1.pointerEvents !== 'none' && style2.pointerEvents !== 'none') {
+                   overlapFound = true; break;
+                 }
                }
              }
            }
@@ -267,9 +320,23 @@ export const SiteAuditor = () => {
                   <p className="text-[10px] text-gray-400">فحص شامل للواجهة والأداء</p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <span className="text-[10px] text-gray-400">فحص مستمر</span>
+                  <div className={`w-8 h-4 rounded-full transition-colors relative ${isContinuous ? 'bg-green-500' : 'bg-gray-700'}`}>
+                    <input 
+                      type="checkbox" 
+                      className="sr-only" 
+                      checked={isContinuous} 
+                      onChange={(e) => setIsContinuous(e.target.checked)} 
+                    />
+                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${isContinuous ? 'left-0.5 translate-x-4' : 'left-0.5'}`} />
+                  </div>
+                </label>
+                <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             <div className="p-4 flex-1 overflow-y-auto space-y-4 custom-scrollbar">
