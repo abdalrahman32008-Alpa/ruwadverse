@@ -17,6 +17,8 @@ create table if not exists profiles (
   raed_score integer default 0,
   xp integer default 0,
   level integer default 1,
+  current_stage_id text,
+  completed_stages text[],
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -69,6 +71,7 @@ create table if not exists tasks (
   idea_id bigint references ideas(id) on delete cascade,
   title text not null,
   status text default 'todo' check (status in ('todo', 'in-progress', 'done')),
+  stage_id text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

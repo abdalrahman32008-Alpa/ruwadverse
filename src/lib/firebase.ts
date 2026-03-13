@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAEfhIDopfhue9H9Y_RVe1YsFytJcSsChw",
   authDomain: "ruwadverse.firebaseapp.com",
   projectId: "ruwadverse",
   storageBucket: "ruwadverse.firebasestorage.app",
@@ -13,6 +12,5 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
-export { app, analytics };
+export { app };

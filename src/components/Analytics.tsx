@@ -14,7 +14,7 @@ export const Analytics = () => {
     document.head.appendChild(scriptGA);
     
     window.dataLayer = window.dataLayer || [];
-    function gtag(){window.dataLayer.push(arguments);}
+    function gtag(...args: any[]) { window.dataLayer.push(args); }
     window.gtag = gtag; // Make gtag available globally
     gtag('js', new Date());
     gtag('config', gaId);
@@ -31,7 +31,6 @@ export const Analytics = () => {
   return null; // This component doesn't render anything visible
 };
 
-// Add type definition for gtag
 declare global {
   interface Window {
     dataLayer: any[];

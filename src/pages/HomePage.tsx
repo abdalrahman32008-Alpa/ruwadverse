@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { TrendingUp, Users, Lightbulb, ArrowUpRight, Activity, Target, Sparkles, ChevronLeft, Flame } from 'lucide-react';
+import { TrendingUp, Users, Lightbulb, ArrowUpRight, Activity, Target, Sparkles, ChevronLeft, Flame, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { SectorIntelligence } from '../components/SectorIntelligence';
+import { STARTUP_ROADMAP } from '../constants/roadmap';
 
 export const HomePage = () => {
   const { user, subscriptionTier } = useAuth();
@@ -22,15 +23,30 @@ export const HomePage = () => {
   const [recommendedProjects, setRecommendedProjects] = useState<any[]>([]);
   const [trendingIdeas, setTrendingIdeas] = useState<any[]>([]);
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(true);
+  const [roadmapProgress, setRoadmapProgress] = useState({
+    currentStageId: STARTUP_ROADMAP[0].id,
+    completedStages: [] as string[]
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Check onboarding status
+        // Check onboarding status and roadmap progress
         if (user) {
-            const { data: profile } = await supabase.from('profiles').select('skills, bio').eq('id', user.id).single();
-            if (profile && (!profile.skills || profile.skills.length === 0 || !profile.bio)) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('skills, bio, current_stage_id, completed_stages')
+              .eq('id', user.id)
+              .single();
+            
+            if (profile) {
+              if (!profile.skills || profile.skills.length === 0 || !profile.bio) {
                 setIsOnboardingComplete(false);
+              }
+              setRoadmapProgress({
+                currentStageId: profile.current_stage_id || STARTUP_ROADMAP[0].id,
+                completedStages: profile.completed_stages || []
+              });
             }
         }
 
@@ -183,6 +199,64 @@ export const HomePage = () => {
             ))
           )}
         </div>
+
+        {/* Startup Roadmap Summary */}
+        {!loading && user && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#141517] rounded-3xl border border-white/5 p-8 relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFD700]/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+            
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 text-[#FFD700] mb-2">
+                  <Target size={20} />
+                  <span className="text-sm font-bold uppercase tracking-wider">{t('roadmapProgress')}</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-4">{t('yourStartupJourney')}</h2>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-6">
+                  {STARTUP_ROADMAP.map((stage, idx) => {
+                    const isCompleted = roadmapProgress.completedStages.includes(stage.id);
+                    const isCurrent = roadmapProgress.currentStageId === stage.id;
+                    
+                    return (
+                      <div key={stage.id} className="flex flex-col items-center gap-2">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                          isCompleted ? 'bg-[#FFD700] border-[#FFD700] text-black' : 
+                          isCurrent ? 'bg-white/10 border-[#FFD700] text-[#FFD700]' : 
+                          'bg-white/5 border-white/10 text-gray-600'
+                        }`}>
+                          {isCompleted ? <CheckCircle2 size={20} /> : <span className="text-xs font-bold">{idx + 1}</span>}
+                        </div>
+                        <span className={`text-[10px] text-center font-medium ${isCurrent ? 'text-[#FFD700]' : 'text-gray-500'}`}>
+                          {stage.title}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="shrink-0 w-full md:w-auto">
+                <button 
+                  onClick={() => navigate('/workspace')}
+                  className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 group"
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs text-gray-400 font-medium">{t('currentStage')}</span>
+                    <span className="text-[#FFD700] group-hover:text-white transition-colors">
+                      {STARTUP_ROADMAP.find(s => s.id === roadmapProgress.currentStageId)?.title}
+                    </span>
+                  </div>
+                  <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recommended Projects or Smart Empty State */}

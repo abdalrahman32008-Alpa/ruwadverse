@@ -44,6 +44,8 @@ import { RAEDAgent } from './components/RAEDAgent';
 import { EnthusiasmEngine } from './components/EnthusiasmEngine';
 import { SystemHealthDashboard } from './components/SystemHealthDashboard';
 import { SiteAuditor } from './components/SiteAuditor';
+import { useFCM } from './hooks/useFCM';
+import { CrispChat } from './components/CrispChat';
 
 // Lazy Load Pages
 const AboutPage = React.lazy(() => import('./pages/AboutPage').then(module => ({ default: module.AboutPage })));
@@ -784,6 +786,8 @@ function AppContent() {
   
   // تفعيل نظام التتبع والتعلم الآلي
   useUserTracker();
+  useFCM();
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showSessionWarning, setShowSessionWarning] = useState(false);
   const { user, signOut } = useAuth();
@@ -810,13 +814,69 @@ function AppContent() {
     setShowSessionWarning(false);
 
     if (user) {
-      warningTimer.current = setTimeout(() => setShowSessionWarning(true), WARNING_TIMEOUT_MS);
-      sessionTimer.current = setTimeout(() => {
-        signOut();
-        navigate('/');
-      }, SESSION_TIMEOUT_MS);
+      sessionTimer.current = setTimeout(signOut, 30 * 60 * 1000);
+      warningTimer.current = setTimeout(() => setShowSessionWarning(true), 25 * 60 * 1000);
     }
   };
+
+  return (
+    <div className="min-h-screen bg-stone-50 text-stone-900 font-sans">
+      <CrispChat />
+      <AuthProvider>
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 flex items-center justify-center bg-stone-50 z-50"
+            >
+              <Logo className="w-16 h-16 animate-pulse" />
+            </motion.div>
+          ) : (
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/home" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
+              <Route path="/raed" element={<ProtectedRoute><RaedPage /></ProtectedRoute>} />
+              <Route path="/profile/:id" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProfileRedirect />} />
+              <Route path="/new-idea" element={<ProtectedRoute><NewIdeaPage /></ProtectedRoute>} />
+              <Route path="/idea/:id" element={<ProtectedRoute><IdeaDetailPage /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+              <Route path="/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
+              <Route path="/workspace/:id" element={<ProtectedRoute><ProjectWorkspacePage /></ProtectedRoute>} />
+              <Route path="/trends" element={<ProtectedRoute><MarketTrendsDashboard /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          )}
+        </AnimatePresence>
+        
+        {user && (
+          <>
+            <Sidebar isOpen={isSidebarOpen} />
+            <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+            <BottomNav />
+            <RAEDAgent />
+            <EnthusiasmEngine role={userType || 'idea'} />
+            <SystemHealthDashboard />
+            <SiteAuditor />
+          </>
+        )}
+        <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
+        <CookieConsent />
+      </AuthProvider>
+    </div>
+  );
 
   useEffect(() => {
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];

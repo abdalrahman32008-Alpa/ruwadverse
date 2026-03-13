@@ -455,6 +455,9 @@ export const translations = {
     raedPrompt1: "\"كيف أبدأ في كتابة خطة عمل لمشروعي؟\"",
     raedPrompt2: "\"ما هي أفضل طريقة للبحث عن مستثمر ملائكي؟\"",
     startNewChat: "بدء محادثة جديدة",
+    roadmapProgress: "تقدم خارطة الطريق",
+    yourStartupJourney: "رحلتك في بناء الشركة الناشئة",
+    currentStage: "المرحلة الحالية",
     
     // Pricing Page
     freePlanDesc: "نقطة الانطلاق المثالية لرواد الأعمال والمستثمرين الجدد.",
@@ -1189,6 +1192,9 @@ export const translations = {
     raedPrompt1: "\"How do I start writing a business plan for my project?\"",
     raedPrompt2: "\"What is the best way to find an angel investor?\"",
     startNewChat: "Start New Chat",
+    roadmapProgress: "Roadmap Progress",
+    yourStartupJourney: "Your Startup Journey",
+    currentStage: "Current Stage",
     
     // Pricing Page
     freePlanDesc: "The perfect starting point for new entrepreneurs and investors.",

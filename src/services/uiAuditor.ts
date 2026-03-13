@@ -18,7 +18,7 @@ const getSimplifiedDOM = () => {
   body.querySelectorAll('script, style, svg, img, iframe').forEach(el => el.remove());
   
   // Return a simplified string representation
-  return body.innerText.substring(0, 2000); // Limit to 2000 chars
+  return body.textContent?.substring(0, 2000) || ''; // Limit to 2000 chars
 };
 
 export const auditUI = async (pageName: string = "الصفحة الحالية"): Promise<UIIssue[]> => {

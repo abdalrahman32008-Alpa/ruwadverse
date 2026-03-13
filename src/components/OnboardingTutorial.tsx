@@ -29,24 +29,24 @@ export const OnboardingTutorial = () => {
 
   const founderSteps = [
     {
-      title: 'محاكي السوق (Market Simulator)',
-      description: 'توقع تكلفة الاستحواذ على العملاء (CAC) والقيمة الدائمة (LTV) ومعدل التسرب قبل إطلاق مشروعك.',
-      icon: <Target size={48} className="text-[#FFD700]" />,
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+      title: 'خارطة طريق ريادة الأعمال',
+      description: 'نظام متكامل من 7 مراحل يقودك من مجرد فكرة إلى مشروع عالمي قابل للتوسع. كل مرحلة لها أهدافها وأدواتها الخاصة.',
+      icon: <Network size={48} className="text-[#FFD700]" />,
+      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop',
       color: 'from-[#FFD700]/20 to-transparent'
     },
     {
-      title: 'المولد العصبي (Neural Pitch Deck)',
-      description: 'دع الذكاء الاصطناعي يبني عرضك التقديمي ثلاثي الأبعاد في ثوانٍ بناءً على تفاصيل فكرتك.',
-      icon: <Layers size={48} className="text-blue-400" />,
-      image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop',
+      title: 'مساحة العمل الذكية',
+      description: 'نظم مهامك بناءً على مرحلة مشروعك الحالية. RAED AI سيقوم بتحليل تقدمك واقتراح الخطوات القادمة بدقة.',
+      icon: <Terminal size={48} className="text-blue-400" />,
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
       color: 'from-blue-500/20 to-transparent'
     },
     {
-      title: 'الشريك المؤسس الذاتي (Autonomous Co-Founder)',
-      description: 'فوض المهام التقنية والتسويقية لـ RAED AI ليقوم بتنفيذها فعلياً أثناء انشغالك بالتخطيط الاستراتيجي.',
-      icon: <Terminal size={48} className="text-green-500" />,
-      image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop',
+      title: 'محاكي السوق (Market Simulator)',
+      description: 'توقع تكلفة الاستحواذ على العملاء (CAC) والقيمة الدائمة (LTV) ومعدل التسرب قبل إطلاق مشروعك.',
+      icon: <Target size={48} className="text-green-500" />,
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
       color: 'from-green-500/20 to-transparent'
     }
   ];
