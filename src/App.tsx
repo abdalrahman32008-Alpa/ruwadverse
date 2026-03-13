@@ -819,65 +819,6 @@ function AppContent() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-stone-50 text-stone-900 font-sans">
-      <CrispChat />
-      <AuthProvider>
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 flex items-center justify-center bg-stone-50 z-50"
-            >
-              <Logo className="w-16 h-16 animate-pulse" />
-            </motion.div>
-          ) : (
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/auth/callback" element={<AuthCallbackPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/home" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
-              <Route path="/raed" element={<ProtectedRoute><RaedPage /></ProtectedRoute>} />
-              <Route path="/profile/:id" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProfileRedirect />} />
-              <Route path="/new-idea" element={<ProtectedRoute><NewIdeaPage /></ProtectedRoute>} />
-              <Route path="/idea/:id" element={<ProtectedRoute><IdeaDetailPage /></ProtectedRoute>} />
-              <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-              <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
-              <Route path="/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
-              <Route path="/workspace/:id" element={<ProtectedRoute><ProjectWorkspacePage /></ProtectedRoute>} />
-              <Route path="/trends" element={<ProtectedRoute><MarketTrendsDashboard /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          )}
-        </AnimatePresence>
-        
-        {user && (
-          <>
-            <Sidebar isOpen={isSidebarOpen} />
-            <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-            <BottomNav />
-            <RAEDAgent />
-            <EnthusiasmEngine role={userType || 'idea'} />
-            <SystemHealthDashboard />
-            <SiteAuditor />
-          </>
-        )}
-        <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
-        <CookieConsent />
-      </AuthProvider>
-    </div>
-  );
-
   useEffect(() => {
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
     const handleActivity = () => resetSessionTimer();
@@ -1052,7 +993,7 @@ function AppContent() {
                     </ProtectedRoute>
                   } />
 
-                  <Route path="/workspace" element={
+                  <Route path="/workspace/:id?" element={
                     <ProtectedRoute>
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <ProjectWorkspacePage />
@@ -1258,6 +1199,7 @@ function AppContent() {
           <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
           <CookieConsent />
           <SiteAuditor />
+          <CrispChat />
         </div>
       )}
     </>

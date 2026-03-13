@@ -10,7 +10,7 @@ import { STARTUP_ROADMAP } from '../constants/roadmap';
 
 export const HomePage = () => {
   const { user, subscriptionTier } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   
@@ -98,7 +98,7 @@ export const HomePage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user, t]);
 
   const statCards = [
     { label: t('totalUsers'), value: stats.profileViews, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -232,7 +232,7 @@ export const HomePage = () => {
                           {isCompleted ? <CheckCircle2 size={20} /> : <span className="text-xs font-bold">{idx + 1}</span>}
                         </div>
                         <span className={`text-[10px] text-center font-medium ${isCurrent ? 'text-[#FFD700]' : 'text-gray-500'}`}>
-                          {stage.title}
+                          {language === 'ar' ? stage.title : stage.titleEn}
                         </span>
                       </div>
                     );
@@ -319,10 +319,10 @@ export const HomePage = () => {
             <p className="text-gray-400 text-sm mb-6">{t('raedHomeDesc')}</p>
             
             <div className="space-y-3 mb-6">
-              <button onClick={() => navigate('/raed')} className={`w-full ${t('language') === 'ar' ? 'text-right' : 'text-left'} p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm text-gray-300 border border-white/5`}>
+              <button onClick={() => navigate('/raed')} className={`w-full ${language === 'ar' ? 'text-right' : 'text-left'} p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm text-gray-300 border border-white/5`}>
                 {t('raedPrompt1')}
               </button>
-              <button onClick={() => navigate('/raed')} className={`w-full ${t('language') === 'ar' ? 'text-right' : 'text-left'} p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm text-gray-300 border border-white/5`}>
+              <button onClick={() => navigate('/raed')} className={`w-full ${language === 'ar' ? 'text-right' : 'text-left'} p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-sm text-gray-300 border border-white/5`}>
                 {t('raedPrompt2')}
               </button>
             </div>
