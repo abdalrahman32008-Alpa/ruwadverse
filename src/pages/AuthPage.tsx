@@ -106,6 +106,9 @@ export const AuthPage = () => {
       return;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -116,6 +119,7 @@ export const AuthPage = () => {
           data: {
             full_name: fullName,
             user_type: userType,
+            referred_by: refCode,
           }
         }
       });

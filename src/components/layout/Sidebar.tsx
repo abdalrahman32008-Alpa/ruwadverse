@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 export const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
   const location = useLocation();
   const { t } = useLanguage();
-  const { signOut, subscriptionTier } = useAuth();
+  const { signOut, subscriptionTier, user } = useAuth();
 
   const menuItems = [
     { id: 'sidebar-feed', icon: Home, label: t('home'), path: '/home' },
@@ -78,7 +78,7 @@ export const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
         </Link>
         
         <Link 
-          to="/dashboard" 
+          to={user?.user_metadata?.user_type === 'idea' ? '/founder-dashboard' : '/dashboard'} 
           className="flex items-center gap-3 p-3 rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-colors text-sm"
         >
           <LayoutDashboard size={18} />

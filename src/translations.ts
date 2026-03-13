@@ -19,9 +19,9 @@ export const translations = {
     dashboard: "لوحة التحكم",
     explore: "استكشف",
     projectBuilding: "بناء المشروع",
-    marketPulse: "نبض السوق",
+    marketPulse: "أخبار السوق",
     myAccount: "حسابي",
-    referralProgram: "برنامج الإحالة",
+    referralProgram: "المكافآت والسفراء",
     contracts: "العقود",
     workspace: "مساحة العمل",
     mainMenu: "القائمة الرئيسية",
@@ -434,6 +434,9 @@ export const translations = {
     potentialValue: "القيمة المتوقعة",
     transparencyReport: "تقرير الشفافية",
     // HomePage specific
+    startupProgressLabel: "تقدم المشروع",
+    profileStrengthLabel: "قوة الملف الشخصي",
+    activeOpportunitiesLabel: "الفرص المتاحة",
     profileIncomplete: "ملفك الشخصي غير مكتمل",
     completeProfileToUnlock: "أكمل ملفك لتفعيل ميزات Startup OS",
     completeProfileNow: "إكمال الملف الآن",
@@ -486,7 +489,7 @@ export const translations = {
     generalFallback: "عام",
     
     // Sector Intelligence
-    sectorIntelligenceTitle: 'ذكاء القطاعات',
+    sectorIntelligenceTitle: 'رؤى القطاعات',
     sectorTech: 'التقنية والبرمجيات',
     sectorAI: 'الذكاء الاصطناعي',
     sectorHealth: 'التكنولوجيا الصحية',
@@ -757,9 +760,9 @@ export const translations = {
     dashboard: "Dashboard",
     explore: "Explore",
     projectBuilding: "Project Building",
-    marketPulse: "Market Pulse",
+    marketPulse: "Market News",
     myAccount: "My Account",
-    referralProgram: "Referral Program",
+    referralProgram: "Rewards & Ambassadors",
     contracts: "Contracts",
     workspace: "Workspace",
     mainMenu: "Main Menu",
@@ -1171,6 +1174,9 @@ export const translations = {
     potentialValue: "Potential Value",
     transparencyReport: "Transparency Report",
     // HomePage specific
+    startupProgressLabel: "Startup Progress",
+    profileStrengthLabel: "Profile Strength",
+    activeOpportunitiesLabel: "Active Opportunities",
     profileIncomplete: "Your profile is incomplete",
     completeProfileToUnlock: "Complete your profile to unlock Startup OS features",
     completeProfileNow: "Complete Profile Now",
@@ -1223,7 +1229,7 @@ export const translations = {
     generalFallback: "General",
     
     // Sector Intelligence
-    sectorIntelligenceTitle: 'Sector Intelligence',
+    sectorIntelligenceTitle: 'Sector Insights',
     sectorTech: 'Tech & Software',
     sectorAI: 'Artificial Intelligence',
     sectorHealth: 'Health Tech',

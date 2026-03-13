@@ -1,4 +1,4 @@
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel, Type } from "@google/genai";
 import * as Sentry from "@sentry/react";
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -7,6 +7,68 @@ const ai = genAI ? Sentry.instrumentGoogleGenAIClient(genAI, {
   recordInputs: true,
   recordOutputs: true,
 }) : null;
+
+export const fetchRealMarketNews = async (marketFilter: string) => {
+  if (!ai) return null;
+  
+  const marketContext = marketFilter === 'egypt' ? 'السوق المصري' : marketFilter === 'arab' ? 'السوق العربي' : 'السوق العالمي';
+  
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `ابحث عن أحدث الأخبار الاقتصادية وأخبار الشركات الناشئة والاستثمارات في ${marketContext} اليوم. ثم قدم 4 أخبار رئيسية و 3 توقعات للسوق بناءً على هذه الأخبار.`,
+      config: {
+        tools: [{ googleSearch: {} }],
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            news: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  id: { type: Type.NUMBER },
+                  title: { type: Type.STRING },
+                  category: { type: Type.STRING },
+                  time: { type: Type.STRING },
+                  source: { type: Type.STRING },
+                  sector: { type: Type.STRING }
+                },
+                required: ["id", "title", "category", "time", "source", "sector"]
+              }
+            },
+            predictions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  id: { type: Type.NUMBER },
+                  sector: { type: Type.STRING },
+                  trend: { type: Type.STRING },
+                  expert: { type: Type.STRING },
+                  analysis: { type: Type.STRING },
+                  confidence: { type: Type.NUMBER },
+                  tag: { type: Type.STRING }
+                },
+                required: ["id", "sector", "trend", "expert", "analysis", "confidence", "tag"]
+              }
+            }
+          },
+          required: ["news", "predictions"]
+        }
+      }
+    });
+    
+    if (response.text) {
+      return JSON.parse(response.text);
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching real market news:", error);
+    return null;
+  }
+};
 
 export const generateRaedResponse = async (
   userMessage: string, 

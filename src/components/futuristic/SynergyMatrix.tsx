@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { BrainCircuit, Sparkles, Zap } from 'lucide-react';
+import { BrainCircuit, Sparkles, Zap, Fingerprint, Activity } from 'lucide-react';
 
 interface SynergyMatrixProps {
   matchScore: number;
@@ -46,23 +46,23 @@ export const SynergyMatrix: React.FC<SynergyMatrixProps> = ({ matchScore, dimens
   };
 
   return (
-    <div className="bg-[#0B0C0E] border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
+    <div className="bg-[#0B0C0E] border border-purple-500/20 rounded-3xl p-6 relative overflow-hidden group">
       {/* Futuristic Grid Background */}
       <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       
       <div className="flex justify-between items-start mb-6 relative z-10">
         <div>
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <BrainCircuit className="text-[#FFD700]" />
-            التوافق العصبي (Neural Synergy)
+            <Fingerprint className="text-purple-500" />
+            التوافق الكمي (Quantum Matchmaking)
           </h3>
-          <p className="text-gray-400 text-sm mt-1">تحليل ذكاء اصطناعي لمدى توافقك مع هذا المشروع</p>
+          <p className="text-gray-400 text-sm mt-1">تحليل السمات النفسية (Big-5) عبر NLP APIs وخوارزميات QIGPSO</p>
         </div>
         <div className="text-right">
-          <div className="text-3xl font-bold text-[#FFD700] flex items-center gap-1 justify-end">
+          <div className="text-3xl font-bold text-purple-500 flex items-center gap-1 justify-end font-mono">
             {animatedScore}% <Sparkles size={20} className="animate-pulse" />
           </div>
-          <p className="text-xs text-green-400">توافق عالي جداً</p>
+          <p className="text-xs text-purple-400">توافق عالي جداً</p>
         </div>
       </div>
 
@@ -79,7 +79,7 @@ export const SynergyMatrix: React.FC<SynergyMatrixProps> = ({ matchScore, dimens
                   return `${50 + (x - 50) * (r / 100)},${50 + (y - 50) * (r / 100)}`;
                 }).join(' ')}
                 fill="none"
-                stroke="rgba(255,255,255,0.1)"
+                stroke="rgba(168,85,247,0.1)"
                 strokeWidth="0.5"
               />
             ))}
@@ -94,7 +94,7 @@ export const SynergyMatrix: React.FC<SynergyMatrixProps> = ({ matchScore, dimens
                   y1="50"
                   x2={50 + 50 * Math.cos(angle)}
                   y2={50 + 50 * Math.sin(angle)}
-                  stroke="rgba(255,255,255,0.1)"
+                  stroke="rgba(168,85,247,0.1)"
                   strokeWidth="0.5"
                 />
               );
@@ -106,29 +106,34 @@ export const SynergyMatrix: React.FC<SynergyMatrixProps> = ({ matchScore, dimens
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, type: "spring" }}
               points={getPoints()}
-              fill="rgba(255, 215, 0, 0.2)"
-              stroke="#FFD700"
+              fill="rgba(168, 85, 247, 0.2)"
+              stroke="#A855F7"
               strokeWidth="1.5"
-              className="drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]"
+              className="drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"
             />
           </svg>
           
           {/* Labels */}
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] text-gray-400 whitespace-nowrap">الرؤية</div>
-          <div className="absolute top-1/3 -right-6 text-[10px] text-gray-400 whitespace-nowrap">التنفيذ</div>
-          <div className="absolute bottom-4 -right-4 text-[10px] text-gray-400 whitespace-nowrap">المخاطرة</div>
-          <div className="absolute bottom-4 -left-4 text-[10px] text-gray-400 whitespace-nowrap">التقنية</div>
-          <div className="absolute top-1/3 -left-6 text-[10px] text-gray-400 whitespace-nowrap">الثقافة</div>
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] text-gray-400 whitespace-nowrap">الرؤية (Vision)</div>
+          <div className="absolute top-1/3 -right-6 text-[10px] text-gray-400 whitespace-nowrap">التنفيذ (Execution)</div>
+          <div className="absolute bottom-4 -right-4 text-[10px] text-gray-400 whitespace-nowrap">المخاطرة (Risk)</div>
+          <div className="absolute bottom-4 -left-4 text-[10px] text-gray-400 whitespace-nowrap">التقنية (Tech)</div>
+          <div className="absolute top-1/3 -left-6 text-[10px] text-gray-400 whitespace-nowrap">الثقافة (Culture)</div>
         </div>
 
         {/* Dimension Details */}
         <div className="flex-1 w-full space-y-4">
+          <div className="flex items-center gap-2 mb-4 text-sm text-purple-400 bg-purple-500/10 p-3 rounded-xl border border-purple-500/20">
+            <Activity size={16} />
+            <span>Sentino Personality API scores against 20+ inventories</span>
+          </div>
+
           {[
-            { label: 'توافق الرؤية (Vision)', value: dimensions.vision, color: 'bg-blue-500' },
-            { label: 'القدرة على التنفيذ (Execution)', value: dimensions.execution, color: 'bg-green-500' },
-            { label: 'تحمل المخاطر (Risk Tolerance)', value: dimensions.riskTolerance, color: 'bg-red-500' },
-            { label: 'التكامل التقني (Tech Stack)', value: dimensions.techStack, color: 'bg-purple-500' },
-            { label: 'الثقافة العملية (Culture)', value: dimensions.culture, color: 'bg-[#FFD700]' },
+            { label: 'الانبساطية (Extraversion)', value: dimensions.vision, color: 'bg-blue-500' },
+            { label: 'الاجتهاد (Conscientiousness)', value: dimensions.execution, color: 'bg-green-500' },
+            { label: 'الانفتاح (Openness)', value: dimensions.riskTolerance, color: 'bg-red-500' },
+            { label: 'التوافق (Agreeableness)', value: dimensions.techStack, color: 'bg-purple-500' },
+            { label: 'العصابية (Neuroticism)', value: dimensions.culture, color: 'bg-[#FFD700]' },
           ].map((dim, i) => (
             <div key={i}>
               <div className="flex justify-between text-xs mb-1">

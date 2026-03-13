@@ -18,6 +18,7 @@ export const ExploreSection = ({ type }: ExploreProps) => {
   const [selectedSkill, setSelectedSkill] = useState('All');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
 
   const industries = ['All', 'EdTech', 'FinTech', 'HealthTech', 'E-commerce', 'AI', 'Logistics', 'PropTech', 'AgriTech', 'Sustainability', 'Tourism', 'Cybersecurity', 'Other'];
   const skills = ['All', 'Tech Lead', 'Marketing', 'Product', 'Sales', 'Operations'];
@@ -26,6 +27,25 @@ export const ExploreSection = ({ type }: ExploreProps) => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        if (user) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+            
+          if (profileData) {
+            setCurrentUserProfile({
+              id: profileData.id,
+              userType: profileData.user_type || 'idea',
+              skills: profileData.skills || [],
+              interests: profileData.interests || [],
+              experience: profileData.experience_years || 0,
+              endorsements: 0
+            });
+          }
+        }
+
         if (type === 'projects') {
           const { data, error } = await supabase
             .from('ideas')
@@ -49,11 +69,7 @@ export const ExploreSection = ({ type }: ExploreProps) => {
               confidence: Math.floor(Math.random() * 40) + 60, // Simulated for now
             })));
           } else {
-            // Fallback to mock if empty
-            setItems([
-              { id: 1, title: 'PayFast', industry: 'FinTech', location: 'Riyadh', stage: 'Seed', valuation: '5M SAR', desc: 'Seamless payments for SMEs in MENA.', skills: ['FinTech', 'Payments'], enthusiasm: 95, confidence: 88 },
-              { id: 2, title: 'MedConnect', industry: 'HealthTech', location: 'Dubai', stage: 'Pre-Seed', valuation: '2M SAR', desc: 'Telemedicine platform connecting patients with specialists.', skills: ['HealthTech'], enthusiasm: 70, confidence: 45 },
-            ]);
+            setItems([]);
           }
         } else {
           const { data, error } = await supabase
@@ -77,11 +93,7 @@ export const ExploreSection = ({ type }: ExploreProps) => {
               level: (profile.experience_years || 2) > 5 ? 'Expert' : 'Intermediate'
             })));
           } else {
-            // Fallback to mock if empty
-            setItems([
-              { id: 1, name: 'Omar H.', role: 'Tech Lead', skills: ['React', 'Node.js', 'AWS'], location: 'Remote', experience: 5, endorsements: 15, userType: 'skill', level: 'Expert' },
-              { id: 2, name: 'Layla M.', role: 'Marketing', skills: ['SEO', 'Growth', 'Content'], location: 'Riyadh', experience: 3, endorsements: 8, userType: 'skill', level: 'Intermediate' },
-            ]);
+            setItems([]);
           }
         }
       } catch (error) {
@@ -94,14 +106,14 @@ export const ExploreSection = ({ type }: ExploreProps) => {
     fetchData();
   }, [type]);
 
-  // Mock Current User for matching
-  const currentUser: UserProfile = {
+  // Current User for matching
+  const currentUser: UserProfile = currentUserProfile || {
     id: user?.id || 'me',
-    userType: 'idea',
-    skills: ['Product Management', 'Strategic Planning'],
-    interests: ['FinTech', 'AI', 'React', 'Node.js'],
-    experience: 5,
-    endorsements: 10
+    userType: user?.user_metadata?.user_type || 'idea',
+    skills: [],
+    interests: [],
+    experience: 0,
+    endorsements: 0
   };
 
   const getMatchScore = (item: any) => {

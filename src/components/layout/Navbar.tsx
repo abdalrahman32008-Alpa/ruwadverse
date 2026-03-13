@@ -46,7 +46,7 @@ export const Navbar = ({ onFeedback, onSearch, onToggleSidebar }: NavbarProps) =
                 <Menu size={24} />
               </button>
             )}
-            <div className="cursor-pointer flex items-center gap-2 z-50" onClick={() => handleNavigate('/')}>
+            <div className="cursor-pointer flex items-center gap-2 z-50" onClick={() => handleNavigate(user ? '/home' : '/')}>
               <Logo width="120" height="40" />
             </div>
           </div>

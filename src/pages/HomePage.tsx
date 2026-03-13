@@ -75,7 +75,7 @@ export const HomePage = () => {
           setRecommendedProjects(ideas.map(idea => ({
             id: idea.id,
             title: idea.title,
-            match: Math.floor(Math.random() * 20 + 80) + '%', // Random match score for now
+            sector: idea.sector,
             role: t('coFounderRole') // Default role
           })));
         }
@@ -101,9 +101,27 @@ export const HomePage = () => {
   }, [user, t]);
 
   const statCards = [
-    { label: t('totalUsers'), value: stats.profileViews, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { label: t('ideasSubmitted'), value: stats.interactions, icon: Activity, color: 'text-green-500', bg: 'bg-green-500/10' },
-    { label: t('investors'), value: stats.partnerships, icon: Target, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { 
+      label: t('startupProgressLabel'), 
+      value: `${Math.round((roadmapProgress.completedStages.length / STARTUP_ROADMAP.length) * 100)}%`, 
+      icon: Target, 
+      color: 'text-[#FFD700]', 
+      bg: 'bg-[#FFD700]/10' 
+    },
+    { 
+      label: t('profileStrengthLabel'), 
+      value: `${isOnboardingComplete ? '100%' : '60%'}`, 
+      icon: Users, 
+      color: 'text-blue-500', 
+      bg: 'bg-blue-500/10' 
+    },
+    { 
+      label: t('activeOpportunitiesLabel'), 
+      value: stats.partnerships, 
+      icon: Sparkles, 
+      color: 'text-purple-500', 
+      bg: 'bg-purple-500/10' 
+    },
   ];
 
   return (
@@ -299,11 +317,11 @@ export const HomePage = () => {
                   <div key={project.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer" onClick={() => navigate(`/idea/${project.id}`)}>
                     <div>
                       <h3 className="font-bold text-white mb-1">{project.title}</h3>
-                      <p className="text-xs text-gray-400">{t('neededRole')} <span className="text-gray-300">{project.role}</span></p>
+                      <p className="text-xs text-gray-400">{t('sectorLabel')} <span className="text-gray-300">{project.sector || t('generalFallback')}</span></p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <span className="text-xs font-bold text-[#FFD700] bg-[#FFD700]/10 px-2 py-1 rounded-lg">
-                        {t('matchPercentage')} {project.match}
+                        {t('viewDetails')}
                       </span>
                     </div>
                   </div>

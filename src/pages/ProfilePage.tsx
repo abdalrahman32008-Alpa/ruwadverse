@@ -26,6 +26,8 @@ export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
   const [copied, setCopied] = useState(false);
   const [hasPassionProfile, setHasPassionProfile] = useState(true);
   const [showPassionSurvey, setShowPassionSurvey] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<any>({});
 
   const profileId = isMe ? user?.id : (id === 'me' ? user?.id : id);
   const isOwnProfile = isMe || (user && profileId === user.id);
@@ -85,6 +87,10 @@ export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
                 role: userData.user_type || 'عضو',
                 bio: userData.onboarding_data?.quick_pitch || userData.onboarding_data?.superpower || userData.onboarding_data?.value || 'لا توجد نبذة',
                 skills: userData.onboarding_data?.skills || [],
+                location: userData.onboarding_data?.location || '',
+                website: userData.onboarding_data?.website || '',
+                phone: userData.onboarding_data?.phone || '',
+                linkedin: userData.onboarding_data?.linkedin || '',
                 followers_count: 0,
                 following_count: 0
             });
@@ -116,6 +122,67 @@ export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
 
     fetchProfile();
   }, [profileId, isOwnProfile, user]);
+
+  useEffect(() => {
+    if (profile) {
+      setEditData({
+        full_name: profile.name,
+        bio: profile.bio,
+        location: profile.location,
+        website: profile.website,
+        skills: profile.skills?.join(', ') || '',
+        phone: profile.phone,
+        linkedin: profile.linkedin
+      });
+    }
+  }, [profile]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const skillsArray = typeof editData.skills === 'string' 
+        ? editData.skills.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : editData.skills;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editData.full_name,
+          onboarding_data: {
+            ...profile.onboarding_data,
+            skills: skillsArray,
+            quick_pitch: editData.bio,
+            location: editData.location,
+            website: editData.website,
+            phone: editData.phone,
+            linkedin: editData.linkedin
+          },
+          user_type: profile.role
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+
+      setProfile({
+        ...profile,
+        name: editData.full_name,
+        bio: editData.bio,
+        location: editData.location,
+        website: editData.website,
+        skills: skillsArray,
+        phone: editData.phone,
+        linkedin: editData.linkedin
+      });
+      
+      setIsEditing(false);
+      toast.success('تم تحديث الملف الشخصي بنجاح');
+    } catch (err: any) {
+      toast.error('حدث خطأ أثناء التحديث: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -214,8 +281,11 @@ export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
             </div>
             <div className="flex gap-3 mb-2">
               {isOwnProfile ? (
-                <button className="bg-[#141517] border border-white/10 text-white px-4 py-2 rounded-xl font-bold hover:bg-white/5 transition-colors flex items-center gap-2">
-                  <Settings size={18} />
+                <button 
+                  onClick={() => setIsEditing(true)}
+                  className="bg-[#141517] border border-white/10 text-white px-4 py-2 rounded-xl font-bold hover:bg-white/5 transition-colors flex items-center gap-2"
+                >
+                  <Edit2 size={18} />
                   تعديل الملف
                 </button>
               ) : (
@@ -226,8 +296,109 @@ export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-3 mb-2">
+          {isEditing ? (
+            <motion.form 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              onSubmit={handleUpdateProfile} 
+              className="mt-6 space-y-6 bg-[#141517] p-6 rounded-2xl border border-white/10 shadow-xl"
+            >
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Edit2 size={20} className="text-[#FFD700]" />
+                تعديل الملف الشخصي
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">الاسم الكامل</label>
+                  <input 
+                    type="text" 
+                    value={editData.full_name || ''} 
+                    onChange={(e) => setEditData({...editData, full_name: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] outline-none transition-all"
+                    placeholder="أدخل اسمك الكامل"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">الموقع</label>
+                  <input 
+                    type="text" 
+                    value={editData.location || ''} 
+                    onChange={(e) => setEditData({...editData, location: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] outline-none transition-all"
+                    placeholder="المدينة، البلد"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">الموقع الإلكتروني</label>
+                  <input 
+                    type="url" 
+                    value={editData.website || ''} 
+                    onChange={(e) => setEditData({...editData, website: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] outline-none transition-all"
+                    placeholder="https://example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">رقم الهاتف</label>
+                  <input 
+                    type="tel" 
+                    value={editData.phone || ''} 
+                    onChange={(e) => setEditData({...editData, phone: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] outline-none transition-all"
+                    placeholder="+966 50 000 0000"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">رابط LinkedIn</label>
+                  <input 
+                    type="url" 
+                    value={editData.linkedin || ''} 
+                    onChange={(e) => setEditData({...editData, linkedin: e.target.value})}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] outline-none transition-all"
+                    placeholder="https://linkedin.com/in/username"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">النبذة التعريفية</label>
+                <textarea 
+                  value={editData.bio || ''} 
+                  onChange={(e) => setEditData({...editData, bio: e.target.value})}
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] outline-none h-32 resize-none transition-all"
+                  placeholder="تحدث عن نفسك، خبراتك، وطموحاتك..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">المهارات (مفصولة بفاصلة)</label>
+                <input 
+                  type="text" 
+                  value={editData.skills || ''} 
+                  onChange={(e) => setEditData({...editData, skills: e.target.value})}
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] outline-none transition-all"
+                  placeholder="React, Node.js, التسويق الرقمي..."
+                />
+              </div>
+              <div className="flex gap-4 pt-4 border-t border-white/10">
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="px-8 py-3 bg-[#FFD700] text-black font-bold rounded-xl hover:bg-[#FFC000] transition-colors disabled:opacity-50 shadow-lg shadow-[#FFD700]/20 flex-1 md:flex-none"
+                >
+                  {loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditing(false)}
+                  className="px-8 py-3 bg-white/5 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex-1 md:flex-none"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </motion.form>
+          ) : (
+            <div>
+              <div className="flex items-center gap-3 mb-2">
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 {profile.name || 'مستخدم'}
                 <span className="bg-[#FFD700]/10 text-[#FFD700] text-xs px-2 py-1 rounded-full border border-[#FFD700]/20">
@@ -260,8 +431,24 @@ export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
               {profile.website && (
                 <div className="flex items-center gap-1">
                   <LinkIcon size={16} />
-                  <a href={profile.website} target="_blank" rel="noreferrer" className="text-[#FFD700] hover:underline">
-                    {profile.website}
+                  <a href={profile.website} target="_blank" rel="noreferrer" className="text-[#FFD700] hover:underline" dir="ltr">
+                    {profile.website.replace(/^https?:\/\//, '')}
+                  </a>
+                </div>
+              )}
+              {profile.phone && (
+                <div className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                  <a href={`tel:${profile.phone}`} className="text-[#FFD700] hover:underline" dir="ltr">
+                    {profile.phone}
+                  </a>
+                </div>
+              )}
+              {profile.linkedin && (
+                <div className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                  <a href={profile.linkedin} target="_blank" rel="noreferrer" className="text-[#FFD700] hover:underline">
+                    LinkedIn
                   </a>
                 </div>
               )}
@@ -358,27 +545,28 @@ export const ProfilePage = ({ isMe = false }: { isMe?: boolean }) => {
               )}
             </div>
           </div>
+        )}
         </div>
       </div>
 
       {/* Referral System (Only for own profile) */}
       {isOwnProfile && (
-        <div className="bg-[#141517] border border-white/10 rounded-3xl p-6 mb-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700]/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+        <div className="bg-[#141517] border border-white/10 rounded-3xl p-6 mb-6 relative overflow-hidden group cursor-pointer" onClick={() => navigate('/referral')}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700]/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none group-hover:bg-[#FFD700]/10 transition-colors" />
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
             <div>
               <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                <Share2 className="text-[#FFD700]" size={20} />
-                برنامج السفراء (Referral)
+                <Sparkles className="text-[#FFD700]" size={20} />
+                برنامج المكافآت والسفراء
               </h3>
-              <p className="text-sm text-gray-400">ادعُ 3 أصدقاء للتسجيل واحصل على اشتراك Pro مجاناً لمدة شهر.</p>
+              <p className="text-sm text-gray-400">ادعُ أصدقاءك واكتشف المكافآت الحصرية بانتظارك!</p>
             </div>
             <div className="flex items-center gap-2 w-full md:w-auto">
               <div className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-gray-300 font-mono flex-1 text-left" dir="ltr">
                 {referralLink}
               </div>
               <button 
-                onClick={handleCopyReferral}
+                onClick={(e) => { e.stopPropagation(); handleCopyReferral(); }}
                 className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-colors shrink-0"
                 title="نسخ الرابط"
               >

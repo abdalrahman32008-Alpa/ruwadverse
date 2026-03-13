@@ -45,7 +45,7 @@ import { EnthusiasmEngine } from './components/EnthusiasmEngine';
 import { SystemHealthDashboard } from './components/SystemHealthDashboard';
 import { SiteAuditor } from './components/SiteAuditor';
 import { useFCM } from './hooks/useFCM';
-import { CrispChat } from './components/CrispChat';
+import { FloatingSupport } from './components/FloatingSupport';
 
 // Lazy Load Pages
 const AboutPage = React.lazy(() => import('./pages/AboutPage').then(module => ({ default: module.AboutPage })));
@@ -246,6 +246,8 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'matches' | 'performance'>('overview');
+  const [dashboardIdeas, setDashboardIdeas] = useState<any[]>([]);
+  const [loadingIdeas, setLoadingIdeas] = useState(true);
   
   const userPoints = user?.user_metadata?.reputation_points || 0; 
   const { level, progress, nextLevelPoints } = calculateUserLevel(userPoints);
@@ -254,6 +256,32 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
     const data = getDailyMarketInsight();
     setMarketData(data);
   }, []);
+
+  useEffect(() => {
+    const fetchDashboardIdeas = async () => {
+      setLoadingIdeas(true);
+      try {
+        let query = supabase.from('ideas').select('*').order('created_at', { ascending: false }).limit(3);
+        
+        // For investors, maybe filter by those seeking funding
+        // For skills, maybe filter by those seeking co-founders
+        // Currently just fetching latest ideas as a baseline
+        
+        const { data, error } = await query;
+        if (!error && data) {
+          setDashboardIdeas(data);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard ideas:", error);
+      } finally {
+        setLoadingIdeas(false);
+      }
+    };
+
+    if (userType === 'skill' || userType === 'investor') {
+      fetchDashboardIdeas();
+    }
+  }, [userType]);
 
   return (
     <div className="min-h-screen pt-28 pb-12 px-4 max-w-7xl mx-auto">
@@ -500,22 +528,26 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
                       <h3 className="text-xl font-bold">{t('exploreIdeas')}</h3>
                       <button className="text-xs text-[#8A8F98] hover:text-white transition-colors">{t('learnMore')}</button>
                     </div>
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="linear-card p-6 rounded-2xl hover:bg-white/[0.02] transition-colors cursor-pointer group border-l-4 border-l-transparent hover:border-l-[#FFD700]">
+                    {loadingIdeas ? (
+                      <div className="text-center py-8 text-gray-400">جاري تحميل الأفكار...</div>
+                    ) : dashboardIdeas.length === 0 ? (
+                      <div className="text-center py-8 text-gray-400">لا توجد أفكار متاحة حالياً</div>
+                    ) : dashboardIdeas.map((idea) => (
+                      <div key={idea.id} className="linear-card p-6 rounded-2xl hover:bg-white/[0.02] transition-colors cursor-pointer group border-l-4 border-l-transparent hover:border-l-[#FFD700]">
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h4 className="font-bold text-lg group-hover:text-[#FFD700] transition-colors">{t('edTechPlatform')}</h4>
-                            <p className="text-[#8A8F98] text-sm mt-1">{t('educationRiyadh')}</p>
+                            <h4 className="font-bold text-lg group-hover:text-[#FFD700] transition-colors">{idea.title}</h4>
+                            <p className="text-[#8A8F98] text-sm mt-1">{idea.sector}</p>
                           </div>
                           <span className="bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 text-xs font-bold px-3 py-1 rounded-full">
-                            {t('equity10')}
+                            {idea.equity_offered ? `${idea.equity_offered}% حصة` : 'حصة غير محددة'}
                           </span>
                         </div>
-                        <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                          {t('lookingForCoFounder')}
+                        <p className="text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
+                          {idea.description}
                         </p>
                         <div className="flex justify-between items-center text-xs text-[#8A8F98] pt-4 border-t border-white/5">
-                          <span>{t('posted2DaysAgo')}</span>
+                          <span>{new Date(idea.created_at).toLocaleDateString('ar-EG')}</span>
                           <button className="text-white hover:text-[#FFD700] flex items-center gap-1 transition-colors">
                             {t('learnMore')} <ArrowLeft size={12} className="rtl:rotate-0 rotate-180" />
                           </button>
@@ -535,16 +567,20 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
                     </div>
                     
                     <div className="grid gap-4">
-                      {[1, 2].map((i) => (
-                        <div key={i} className="linear-card p-6 rounded-2xl hover:bg-white/[0.02] transition-colors group">
+                      {loadingIdeas ? (
+                        <div className="text-center py-8 text-gray-400">جاري تحميل الفرص الاستثمارية...</div>
+                      ) : dashboardIdeas.length === 0 ? (
+                        <div className="text-center py-8 text-gray-400">لا توجد فرص استثمارية حالياً</div>
+                      ) : dashboardIdeas.map((idea) => (
+                        <div key={idea.id} className="linear-card p-6 rounded-2xl hover:bg-white/[0.02] transition-colors group">
                           <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-4">
                               <div className="w-12 h-12 bg-[#141517] border border-white/10 rounded-xl flex items-center justify-center text-2xl shadow-inner">
                                 🚀
                               </div>
                               <div>
-                                <h4 className="font-bold text-lg group-hover:text-[#FFD700] transition-colors">{i === 1 ? t('finTechProject') : t('healthTechProject')}</h4>
-                                <p className="text-xs text-[#8A8F98] mt-1">{t('seedStageRiyadh')}</p>
+                                <h4 className="font-bold text-lg group-hover:text-[#FFD700] transition-colors">{idea.title}</h4>
+                                <p className="text-xs text-[#8A8F98] mt-1">{idea.stage || 'مرحلة مبكرة'}</p>
                               </div>
                             </div>
                             <div className="bg-green-500/10 p-2 rounded-lg border border-green-500/20 text-green-500">
@@ -554,16 +590,16 @@ const Dashboard = ({ userType }: { userType: UserType }) => {
                           
                           <div className="grid grid-cols-3 gap-4 mb-6">
                             <div className="bg-[#141517] p-3 rounded-xl border border-white/5 text-center">
-                              <p className="text-[10px] text-[#8A8F98] uppercase tracking-wider mb-1">{t('valuation')}</p>
-                              <p className="font-bold text-[#FFD700] font-mono">{t('sar3m')}</p>
+                              <p className="text-[10px] text-[#8A8F98] uppercase tracking-wider mb-1">التمويل المطلوب</p>
+                              <p className="font-bold text-[#FFD700] font-mono">{idea.funding_needed ? `$${idea.funding_needed.toLocaleString()}` : 'غير محدد'}</p>
                             </div>
                             <div className="bg-[#141517] p-3 rounded-xl border border-white/5 text-center">
                               <p className="text-[10px] text-[#8A8F98] uppercase tracking-wider mb-1">{t('team')}</p>
-                              <p className="font-bold text-white">{t('complete')}</p>
+                              <p className="font-bold text-white">مكتمل</p>
                             </div>
                             <div className="bg-[#141517] p-3 rounded-xl border border-white/5 text-center">
                               <p className="text-[10px] text-[#8A8F98] uppercase tracking-wider mb-1">{t('raedScore')}</p>
-                              <p className="font-bold text-green-400 font-mono">92/100</p>
+                              <p className="font-bold text-green-400 font-mono">{idea.raed_score || 85}/100</p>
                             </div>
                           </div>
                           
@@ -861,12 +897,17 @@ function AppContent() {
 
       if (user) {
         try {
+          const onboardingDataToSave = {
+            ...data,
+            referred_by: user.user_metadata?.referred_by || null
+          };
+
           const { error } = await supabase
             .from('profiles')
             .upsert({
               id: user.id,
               user_type: userType,
-              onboarding_data: data,
+              onboarding_data: onboardingDataToSave,
               raed_score: data.raed_score || 0,
               updated_at: new Date().toISOString(),
             });
@@ -1189,7 +1230,7 @@ function AppContent() {
                 </Routes>
               </AnimatePresence>
             </Suspense>
-            {user && <RAEDAgent />}
+            {/* {user && <RAEDAgent />} */}
             </main>
           </div>
 
@@ -1198,8 +1239,8 @@ function AppContent() {
           <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
           <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
           <CookieConsent />
-          <SiteAuditor />
-          <CrispChat />
+          {/* <SiteAuditor /> */}
+          <FloatingSupport />
         </div>
       )}
     </>

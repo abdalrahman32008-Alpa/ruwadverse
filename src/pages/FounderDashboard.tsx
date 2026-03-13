@@ -24,19 +24,39 @@ export const FounderDashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
 
-  const marketingTips = [
+  const dailyAdvice = [
     "منشورات LinkedIn التي تحتوي على أرقام حقيقية تحصل على تفاعل أعلى بنسبة 40%.",
     "استخدم 'جواز سفر المشروع' الخاص بك في توقيع بريدك الإلكتروني لجذب المستثمرين.",
     "أفضل وقت للنشر على تويتر للمشاريع الناشئة هو الثلاثاء الساعة 10 صباحاً.",
     "القصص الشخصية (Storytelling) هي أقوى أداة تسويقية للمؤسسين في المراحل الأولى.",
-    "تفاعل مع منشورات المستثمرين في قطاعك قبل أن تطلب منهم الاستثمار."
+    "تفاعل مع منشورات المستثمرين في قطاعك قبل أن تطلب منهم الاستثمار.",
+    "تأكد من تحديث خارطة الطريق الخاصة بك كل أسبوعين لإظهار الجدية للمستثمرين.",
+    "الرد السريع على استفسارات المستثمرين يزيد من فرص إغلاق الصفقات بنسبة 60%."
   ];
 
-  const [currentTip, setCurrentTip] = useState(marketingTips[0]);
+  const [currentAdvice, setCurrentAdvice] = useState(dailyAdvice[0]);
 
   useEffect(() => {
-    setCurrentTip(marketingTips[Math.floor(Math.random() * marketingTips.length)]);
+    setCurrentAdvice(dailyAdvice[Math.floor(Math.random() * dailyAdvice.length)]);
   }, []);
+
+  const handleExport = () => {
+    const data = {
+      stats,
+      chartData,
+      pieData,
+      exportDate: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dashboard-report-${new Date().toLocaleDateString()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('hasSeenDashboardOnboarding');
@@ -214,7 +234,12 @@ export const FounderDashboard = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold text-white">لوحة التحكم</h1>
           <div className="flex gap-2 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none px-4 py-2 bg-[#141517] border border-white/10 rounded-xl text-sm text-gray-300 hover:text-white hover:border-white/20 transition-all">تصدير</button>
+            <button 
+              onClick={handleExport}
+              className="flex-1 sm:flex-none px-4 py-2 bg-[#141517] border border-white/10 rounded-xl text-sm text-gray-300 hover:text-white hover:border-white/20 transition-all"
+            >
+              تصدير
+            </button>
             <button onClick={() => setShowAnalyzer(!showAnalyzer)} className="flex-[2] sm:flex-none px-4 py-2 bg-[#FFD700] text-black font-bold rounded-xl hover:bg-[#FFC000] transition-all text-sm flex items-center justify-center gap-2">
               <Plus size={16} />
               {showAnalyzer ? 'إخفاء المحلل' : 'فكرة جديدة (RAED)'}
@@ -267,14 +292,14 @@ export const FounderDashboard = () => {
           </div>
         </div>
 
-        {/* Marketing Tip */}
+        {/* Daily Advice */}
         <div className="bg-white/5 border border-white/10 p-6 rounded-2xl mb-8">
           <div className="flex items-center gap-2 text-gray-400 mb-2">
             <Sparkles size={16} />
-            <span className="text-xs font-bold uppercase tracking-wider">نصيحة التسويق اليوم</span>
+            <span className="text-xs font-bold uppercase tracking-wider">نصيحة اليوم للمؤسسين</span>
           </div>
           <p className="text-sm text-white leading-relaxed">
-            {currentTip}
+            {currentAdvice}
           </p>
         </div>
 
@@ -389,7 +414,9 @@ export const FounderDashboard = () => {
               <span className="font-bold">أداء الأسبوع</span>
             </div>
             <p className="text-sm text-gray-300 leading-relaxed">
-              لقد زاد التفاعل مع أفكارك بنسبة <span className="text-[#FFD700] font-bold">12%</span> مقارنة بالأسبوع الماضي. ننصحك بتحديث وصف "مشروع التقنية المالية" لجذب المزيد من المستثمرين.
+              {stats.requests > 0 
+                ? `لقد تلقيت ${stats.requests} طلبات شراكة جديدة. هذا مؤشر رائع على اهتمام السوق!`
+                : "ابدأ بمشاركة أفكارك في المجتمع لجذب أولى طلبات الشراكة والمشاهدات."}
             </p>
           </div>
         </div>

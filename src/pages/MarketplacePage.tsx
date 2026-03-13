@@ -39,11 +39,29 @@ export const MarketplacePage = () => {
   const [selectedSector, setSelectedSector] = useState('All');
   const [selectedItem, setSelectedItem] = useState<MarketplaceItem | null>(null);
   const [isMatchmakerActive, setIsMatchmakerActive] = useState(false);
-  const [userInterests, setUserInterests] = useState(['FinTech', 'AI', 'Logistics']); // Mock user interests
+  const [userInterests, setUserInterests] = useState<string[]>([]);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const { user } = useAuth();
 
   useSEO(t('marketplaceTitle'), t('marketplaceSEO')); // Assuming marketplaceSEO is added or just use a translated string
+
+  useEffect(() => {
+    const fetchUserInterests = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('investment_interests, skills')
+          .eq('id', user.id)
+          .single();
+        
+        if (data) {
+          const interests = data.investment_interests || data.skills || [];
+          setUserInterests(interests);
+        }
+      }
+    };
+    fetchUserInterests();
+  }, [user]);
 
   const fetchItems = async (pageNumber: number, isNewSearch = false) => {
     try {
